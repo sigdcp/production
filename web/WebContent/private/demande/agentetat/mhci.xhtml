@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:body>
+	<ui:define name="metadata">
+		<f:metadata>
+        	<f:viewParam name="#{webConstantResources.requestParamDossier}" value="#{dossierMissionAgentEtatController.entity}" converter="#{viewParamDossierConverter}"/>
+        	<f:event listener="#{dossierMissionAgentEtatController.preRenderView}" type="preRenderView"></f:event>	
+    	</f:metadata>
+	</ui:define>
+		
+	<ui:composition template="#{webConstantResources.pageTemplate}">
+		<ui:param name="templateController" value="#{dossierMissionAgentEtatController}" />
+		<ui:define name="contenu">
+			<ui:decorate template="/template/formTemplate.xhtml">
+				<ui:param name="uiController" value="#{dossierMissionAgentEtatController}" />
+				<ui:define name="contenu">	
+				
+					<p:tabView rendered="#{not formOnly}">
+						<p:tab title="Demande">
+							<ui:include src="/dossier/include/formMHCIAgentEtat.xhtml" />
+						</p:tab>
+						<p:tab title="Bulletin de liquidation" rendered="#{dossierMissionAgentEtatController.showBulletinLiquidation}">
+							<p:media value="/_bletat_/?id=#{dossierMissionAgentEtatController.entity.numero}" player="pdf" width="1000" height="800" rendered="true"/>
+						</p:tab>
+						<p:tab title="Historique des traitements" rendered="#{dossierMissionAgentEtatController.showHistoriqueTraitements}">
+							
+							<ui:include src="/resources/include/component/traitements.xhtml" >
+								<ui:param name="traitements" value="#{dossierMissionAgentEtatController.dossierDto.historiqueTraitements}" />
+							</ui:include>
+						</p:tab>
+					</p:tabView>	
+				</ui:define>
+				
+				
+				<ui:define name="actions">
+					<ui:include src="/resources/include/component/formCommand.xhtml" >
+						<ui:param name="command" value="#{dossierMissionAgentEtatController.enregistrerCommand}" />
+					</ui:include>
+				</ui:define>
+				
+			</ui:decorate>
+				
+		</ui:define>
+
+
+	</ui:composition>
+
+</h:body>
+
+</html>

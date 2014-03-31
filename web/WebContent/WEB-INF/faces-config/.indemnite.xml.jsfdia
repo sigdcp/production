@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PROCESS model-entity="JSFProcess">
+ <PROCESS-ITEM NAME="rules:*" PATH="*" SHAPE="32,17,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:*:0" NAME="item" PATH="*" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="mettreenliquidation::#private#personnel#liquidation#liquidateur#mettreenliquidation.xhtml"
+    NAME="output"
+    PATH="/private/personnel/liquidation/liquidateur/mettreenliquidation.xhtml"
+    TARGET="rules:#private#personnel#liquidation#liquidateur#mettreenliquidation.xhtml"
+    TITLE="mettreenliquidation" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="validermiseenliquidation::#private#personnel#liquidation#responsable#validermiseenliquidation.xhtml"
+    NAME="output1"
+    PATH="/private/personnel/liquidation/responsable/validermiseenliquidation.xhtml"
+    TARGET="rules:#private#personnel#liquidation#responsable#validermiseenliquidation.xhtml"
+    TITLE="validermiseenliquidation" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="transmettrepourvisaliquidation::#private#personnel#liquidation#responsable#transmettrepourvisaliquidation.xhtml"
+    NAME="output2"
+    PATH="/private/personnel/liquidation/responsable/transmettrepourvisaliquidation.xhtml"
+    TARGET="rules:#private#personnel#liquidation#responsable#transmettrepourvisaliquidation.xhtml"
+    TITLE="transmettrepourvisaliquidation" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="viserbulletinliquidation::#private#personnel#liquidation#directeur#viserbulletinliquidation.xhtml"
+    NAME="output3"
+    PATH="/private/personnel/liquidation/directeur/viserbulletinliquidation.xhtml"
+    TARGET="rules:#private#personnel#liquidation#directeur#viserbulletinliquidation.xhtml"
+    TITLE="viserbulletinliquidation" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="realiserbtbl::#private#personnel#liquidation#responsable#realiserbtbl.xhtml"
+    NAME="output4"
+    PATH="/private/personnel/liquidation/responsable/realiserbtbl.xhtml"
+    TARGET="rules:#private#personnel#liquidation#responsable#realiserbtbl.xhtml"
+    TITLE="realiserbtbl" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="validerbtbl::#private#personnel#liquidation#directeur#validerbtbl.xhtml"
+    NAME="output5"
+    PATH="/private/personnel/liquidation/directeur/validerbtbl.xhtml"
+    TARGET="rules:#private#personnel#liquidation#directeur#validerbtbl.xhtml"
+    TITLE="validerbtbl" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="transmettrebtbl::#private#personnel#liquidation#directeur#tbt.xhtml"
+    NAME="output6"
+    PATH="/private/personnel/liquidation/directeur/tbt.xhtml"
+    TARGET="rules:#private#personnel#liquidation#directeur#tbt.xhtml"
+    TITLE="transmettrebtbl" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="paiement_disponible::#private#personnel#paiement#disponible.xhtml"
+    NAME="output7" PATH="/private/personnel/paiement/disponible.xhtml"
+    TARGET="rules:#private#personnel#paiement#disponible.xhtml"
+    TITLE="paiement_disponible" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="priseenchargebordereau::#private#personnel#paiement#btpec.xhtml"
+    NAME="output8" PATH="/private/personnel/paiement/btpec.xhtml"
+    TARGET="rules:#private#personnel#paiement#btpec.xhtml"
+    TITLE="priseenchargebordereau" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="miseenreglementbordereau::#private#personnel#paiement#btmer.xhtml"
+    NAME="output9" PATH="/private/personnel/paiement/btmer.xhtml"
+    TARGET="rules:#private#personnel#paiement#btmer.xhtml"
+    TITLE="miseenreglementbordereau" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="reglerbulletinliquidation::#private#personnel#paiement#blregler.xhtml"
+    NAME="output10" PATH="/private/personnel/paiement/blregler.xhtml"
+    TARGET="rules:#private#personnel#paiement#blregler.xhtml"
+    TITLE="reglerbulletinliquidation" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="majdisponible::#private#personnel#paiement#majdisponible.xhtml"
+    NAME="output11"
+    PATH="/private/personnel/paiement/majdisponible.xhtml"
+    TARGET="rules:#private#personnel#paiement#majdisponible.xhtml"
+    TITLE="majdisponible" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#private#personnel#paiement#disponible.xhtml"
+  PATH="/private/personnel/paiement/disponible.xhtml" SHAPE="240,33,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM NAME="rules:#private#personnel#paiement#btmer.xhtml"
+  PATH="/private/personnel/paiement/btmer.xhtml" SHAPE="272,209,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM NAME="rules:#private#personnel#paiement#blregler.xhtml"
+  PATH="/private/personnel/paiement/blregler.xhtml" SHAPE="288,353,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM NAME="rules:#private#personnel#paiement#btpec.xhtml"
+  PATH="/private/personnel/paiement/btpec.xhtml" SHAPE="288,353,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM
+  NAME="rules:#private#personnel#paiement#majdisponible.xhtml"
+  PATH="/private/personnel/paiement/majdisponible.xhtml"
+  SHAPE="304,609,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM
+  NAME="rules:#private#personnel#liquidation#liquidateur#mettreenliquidation.xhtml"
+  PATH="/private/personnel/liquidation/liquidateur/mettreenliquidation.xhtml"
+  SHAPE="304,609,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM
+  NAME="rules:#private#personnel#liquidation#responsable#transmettrepourvisaliquidation.xhtml"
+  PATH="/private/personnel/liquidation/responsable/transmettrepourvisaliquidation.xhtml"
+  SHAPE="304,1057,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM
+  NAME="rules:#private#personnel#liquidation#directeur#viserbulletinliquidation.xhtml"
+  PATH="/private/personnel/liquidation/directeur/viserbulletinliquidation.xhtml"
+  SHAPE="304,1281,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM
+  NAME="rules:#private#personnel#liquidation#responsable#validermiseenliquidation.xhtml"
+  PATH="/private/personnel/liquidation/responsable/validermiseenliquidation.xhtml"
+  SHAPE="304,609,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM
+  NAME="rules:#private#personnel#liquidation#directeur#tbt.xhtml"
+  PATH="/private/personnel/liquidation/directeur/tbt.xhtml"
+  SHAPE="304,1057,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM
+  NAME="rules:#private#personnel#liquidation#responsable#realiserbtbl.xhtml"
+  PATH="/private/personnel/liquidation/responsable/realiserbtbl.xhtml"
+  SHAPE="304,609,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM
+  NAME="rules:#private#personnel#liquidation#directeur#validerbtbl.xhtml"
+  PATH="/private/personnel/liquidation/directeur/validerbtbl.xhtml"
+  SHAPE="304,833,0,0" model-entity="JSFProcessGroup"/>
+</PROCESS>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:body>
+	<ui:define name="metadata">
+		<f:metadata>
+        	<ui:include src="/dossier/include/viewParam.xhtml">
+        		<ui:param name="controller" value="#{enregistrerDemandeDDController}"/>
+        	</ui:include>	
+    	</f:metadata>
+	</ui:define>
+		
+	<!--ui:composition template="/template/commun.xhtml"-->
+	<!--ui:composition template="#{empty param[webConstantResources.requestParamPageTemplate]?webConstantResources.requestParamPageTemplateCommon:param[webConstantResources.requestParamPageTemplate] }"-->
+	<ui:composition template="#{webConstantResources.pageTemplate}">
+		<ui:param name="templateController" value="#{enregistrerDemandeDDController}" />
+		<ui:define name="contenu">
+			<ui:decorate template="/template/formTemplate.xhtml">
+				<ui:param name="uiController" value="#{enregistrerDemandeDDController}" />
+				<ui:define name="contenu">	
+					<!--ui:fragment rendered="#{formOnly==null or formOnly}">
+						<ui:include src="/dossier/include/formDossierDD.xhtml">
+							<ui:param name="controller" value="#{enregistrerDemandeDDController}"/>
+						</ui:include>
+					</ui:fragment-->
+					
+					<p:tabView rendered="#{not formOnly}">
+						<p:tab title="Demande #{enregistrerDemandeDDController.read or enregistrerDemandeDDController.update?enregistrerDemandeDDController.dossierDto.dossier.numero:null}">
+							<ui:include src="/dossier/include/formDossierDD.xhtml">
+								<ui:param name="controller" value="#{enregistrerDemandeDDController}"/>
+							</ui:include>
+						</p:tab>
+						<p:tab title="#{request.isUserInRole('AGENTETAT')?'Indemnités':'Bulletin de liquidation'}" rendered="#{enregistrerDemandeDDController.showBulletinLiquidation}">
+							<ui:fragment rendered="#{request.isUserInRole('AGENTETAT')}">
+								<p:panelGrid columns="3" styleClass="panelGridNoBorder">
+									<h:panelGroup>
+										<ui:include src="/private/personnel/include/ddindemnitedetails_personne.xhtml" >
+											<ui:param name="personne" value="Agent" />
+											<ui:param name="detailsPersonne" value="#{enregistrerDemandeDDController.dossierDto.dossier.indemniteDetails.agent}" />
+										</ui:include>
+									</h:panelGroup>
+									<h:panelGroup>
+										<ui:include src="/private/personnel/include/ddindemnitedetails_personne.xhtml" >
+											<ui:param name="personne" value="Conjoint" />
+											<ui:param name="detailsPersonne" value="#{enregistrerDemandeDDController.dossierDto.dossier.indemniteDetails.conjoint}" />
+										</ui:include>
+									</h:panelGroup>
+									<h:panelGroup>
+										<ui:include src="/private/personnel/include/ddindemnitedetails_personne.xhtml" >
+											<ui:param name="personne" value="Enfants" />
+											<ui:param name="detailsPersonne" value="#{enregistrerDemandeDDController.dossierDto.dossier.indemniteDetails.enfants}" />
+										</ui:include>
+									</h:panelGroup>
+									
+								</p:panelGrid>
+								
+								<ui:include src="/resources/include/component/message.xhtml" >
+									<ui:param name="severity" value="info" />
+									<ui:param name="message" value="Total à perçevoir : #{enregistrerDemandeDDController.dossierDto.dossier.indemniteDetails.total}" />
+								</ui:include>
+								
+
+							</ui:fragment>
+							<ui:fragment rendered="#{request.isUserInRole('AGENTSOLDE')}">
+								<p:media value="/_bletat_/?id=#{enregistrerDemandeDDController.entity.numero}" player="pdf" width="1000" height="800" rendered="true"/>
+							</ui:fragment>
+						</p:tab>
+						<p:tab title="Historique des traitements" rendered="#{enregistrerDemandeDDController.showHistoriqueTraitements}">
+							<ui:include src="/resources/include/component/traitements.xhtml" >
+								<ui:param name="traitements" value="#{enregistrerDemandeDDController.dossierDto.historiqueTraitements}" />
+							</ui:include>
+						</p:tab>
+					</p:tabView>
+					
+							
+				</ui:define>
+				
+				<ui:define name="actions">
+					
+					<ui:include src="/resources/include/component/formCommand.xhtml" >
+						<ui:param name="command" value="#{enregistrerDemandeDDController.enregistrerCommand}" />
+					</ui:include>
+					
+				</ui:define>
+				
+			</ui:decorate>
+				
+		</ui:define>
+
+
+	</ui:composition>
+
+</h:body>
+
+</html>

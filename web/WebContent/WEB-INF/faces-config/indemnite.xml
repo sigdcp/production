@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd">
+
+	<navigation-rule>
+		<from-view-id>*</from-view-id>
+		
+		<navigation-case>
+			<from-outcome>mettreenliquidation</from-outcome>
+			<to-view-id>/private/personnel/liquidation/liquidateur/mettreenliquidation.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		
+		<navigation-case>
+			<from-outcome>validermiseenliquidation</from-outcome>
+			<to-view-id>/private/personnel/liquidation/responsable/validermiseenliquidation.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		
+		<navigation-case>
+			<from-outcome>transmettrepourvisaliquidation</from-outcome>
+			<to-view-id>/private/personnel/liquidation/responsable/transmettrepourvisaliquidation.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		
+		<navigation-case>
+			<from-outcome>viserbulletinliquidation</from-outcome>
+			<to-view-id>/private/personnel/liquidation/directeur/viserbulletinliquidation.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		
+		<navigation-case>
+			<from-outcome>realiserbtbl</from-outcome>
+			<to-view-id>/private/personnel/liquidation/responsable/realiserbtbl.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		
+		<navigation-case>
+			<from-outcome>validerbtbl</from-outcome>
+			<to-view-id>/private/personnel/liquidation/directeur/validerbtbl.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>transmettrebtbl</from-outcome>
+			<to-view-id>/private/personnel/liquidation/directeur/tbt.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		
+		
+		<navigation-case>
+			<from-outcome>paiement_disponible</from-outcome>
+			<to-view-id>/private/personnel/paiement/disponible.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>priseenchargebordereau</from-outcome>
+			<to-view-id>/private/personnel/paiement/btpec.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>miseenreglementbordereau</from-outcome>
+			<to-view-id>/private/personnel/paiement/btmer.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>reglerbulletinliquidation</from-outcome>
+			<to-view-id>/private/personnel/paiement/blregler.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		
+		<navigation-case>
+			<from-outcome>majdisponible</from-outcome>
+			<to-view-id>/private/personnel/paiement/majdisponible.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+	
+	</navigation-rule>    
+    
+</faces-config>
