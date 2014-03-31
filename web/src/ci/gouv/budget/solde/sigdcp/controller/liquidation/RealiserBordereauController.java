@@ -55,11 +55,6 @@ public class RealiserBordereauController extends AbstractValidationLiquidationCo
 	protected String natureOperationCode() {
 		return Code.NATURE_OPERATION_ETABLISSEMENT_BTBL;
 	}
-	
-	@Override
-	protected String[] defaultNatureDeplacmentCodeListe() {
-		return null;
-	}
 		
 	@Override
 	protected void onDefaultSubmitAction() throws Exception {

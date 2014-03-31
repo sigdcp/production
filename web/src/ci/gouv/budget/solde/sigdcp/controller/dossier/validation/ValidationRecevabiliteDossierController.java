@@ -19,10 +19,12 @@ public class ValidationRecevabiliteDossierController extends AbstractValidationD
 	
 	@Override
 	protected String[] defaultNatureDeplacmentCodeListe() {
-		return new String[]{Code.NATURE_DEPLACEMENT_AFFECTATION,Code.NATURE_DEPLACEMENT_MUTATION,Code.NATURE_DEPLACEMENT_RETRAITE
-				,Code.NATURE_DEPLACEMENT_OBSEQUE_FRAIS,Code.NATURE_DEPLACEMENT_TRANSIT_BAGAGGES_MAE,Code.NATURE_DEPLACEMENT_TRANSIT_BAGAGGES_STAGIAIRE,
-				Code.NATURE_DEPLACEMENT_MISSION_HCI};
+		return touteLesDepenses();
 	}
 	
+	@Override
+	protected Boolean canShowAllNatureDeplacment() {
+		return true;
+	}
 		
 }

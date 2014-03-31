@@ -177,8 +177,18 @@ public abstract class AbstractDossierDaoImpl<DOSSIER extends Dossier> extends Jp
 				.setParameter("statutId", statutId)
 				.getResultList();
 	}
-	
-	
+	/*
+	@Override
+	public Collection<DOSSIER> readBulletinNullByNatureDeplacements(Collection<NatureDeplacement> natureDeplacements) {
+		return entityManager.createQuery("SELECT d FROM Dossier d WHERE d.deplacement.nature IN :natureDeplacements AND d.dernierTraitement.operation.nature.code = :natureOperationId AND "
+				+ "d.dernierTraitement.statut.code = :statutId AND d.courrier IS NOT NULL ORDER BY d.deplacement.dateCreation ASC"
+				, clazz)
+				.setParameter("natureDeplacements", natureDeplacements)
+				.setParameter("natureOperationId", natureOperationId)
+				.setParameter("statutId", statutId)
+				.getResultList();
+	}
+	*/
 	
 	@Override
 	public DOSSIER readByBulletinLiquidation(BulletinLiquidation bulletinLiquidation) {
@@ -197,6 +207,17 @@ public abstract class AbstractDossierDaoImpl<DOSSIER extends Dossier> extends Jp
 		return entityManager.createQuery("SELECT d FROM DossierMission d WHERE d.deplacement.nature IN :natureDeplacements AND NOT EXISTS("
 				+ " SELECT bl FROM BulletinLiquidation bl WHERE bl.dossier = d AND bl.aspect = :aspectLiquide"
 				+ ")"
+				, clazz)
+				.setParameter("natureDeplacements", natureDeplacements)
+				.setParameter("aspectLiquide", aspectLiquide)
+				.getResultList();
+	}
+	
+	@Override
+	public Collection<DOSSIER> readBulletinLiquidationExisteLiquidableByNatureDeplacements(Collection<NatureDeplacement> natureDeplacements,AspectLiquide aspectLiquide) {
+		return entityManager.createQuery("SELECT d FROM Dossier d WHERE d.deplacement.nature IN :natureDeplacements AND EXISTS("
+				+ " SELECT bl FROM BulletinLiquidation bl WHERE bl.dossier = d AND bl.aspect = :aspectLiquide"
+				+ ") AND ( SELECT SUM(bl.pourcentage) FROM BulletinLiquidation bl WHERE bl.dossier = d AND bl.aspect = :aspectLiquide ) < 1"
 				, clazz)
 				.setParameter("natureDeplacements", natureDeplacements)
 				.setParameter("aspectLiquide", aspectLiquide)

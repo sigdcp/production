@@ -10,7 +10,6 @@ import ci.gouv.budget.solde.sigdcp.model.dossier.DossierDto;
 import ci.gouv.budget.solde.sigdcp.model.dossier.NatureDeplacement;
 import ci.gouv.budget.solde.sigdcp.model.dossier.Statut;
 import ci.gouv.budget.solde.sigdcp.model.identification.AgentEtat;
-import ci.gouv.budget.solde.sigdcp.model.identification.Personne;
 import ci.gouv.budget.solde.sigdcp.service.AbstractService;
 import ci.gouv.budget.solde.sigdcp.service.ActionType;
 import ci.gouv.budget.solde.sigdcp.service.ServiceException;
@@ -35,7 +34,7 @@ public interface AbstractDossierService<DOSSIER extends Dossier> extends Abstrac
 	 * Lectures
 	 */
 	
-	DossierDto findSaisieByPersonneByNatureDeplacement(Personne personne,NatureDeplacement natureDeplacement,String numero,String codeNatureOperation);
+	DossierDto findSaisieByNatureDeplacement(NatureDeplacement natureDeplacement,String numero,String codeNatureOperation);
 	
 	Collection<DOSSIER> findByNatureDeplacementAndStatut(NatureDeplacement natureDeplacement,Statut statut);
 	

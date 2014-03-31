@@ -23,7 +23,7 @@ public class ActionMessageController extends AbstractUIController implements Ser
 
 	private static final long serialVersionUID = -4718035679410781214L;
 
-	private String title,message,href,template,toldel;
+	private String title,message,href,template;
 	@Inject private NavigationManager navigationManager;
 	
 	@Override

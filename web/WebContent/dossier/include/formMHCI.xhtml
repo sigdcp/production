@@ -74,7 +74,7 @@
 		       	<!--
 				<h:outputText value="Durée de la mission (en jour)" /><h:outputText value="" /><h:outputText value="" />
 				-->
-			
+				<!--
 				<p:outputLabel for="villeDepart"  value="Ville de départ:" />
 				<p:selectOneMenu id="villeDepart" value="#{organiserMissionController.entity.deplacement.localiteDepart}" required="#{required}" requiredMessage="#{valueRequiredMessage}" 
 					converter="#{objectConverter}" rendered="#{editable}" binding="#{villeDepart}">
@@ -84,10 +84,10 @@
 				</p:selectOneMenu>
 				<h:outputText value="#{organiserMissionController.entity.deplacement.localiteDepart}" rendered="#{not editable}"/>
 				<p:message for="villeDepart" rendered="#{editable}"/>
-				
+				-->
 				<p:outputLabel for="villeArrivee" value="Ville de la mission:" />		
 				<p:selectOneMenu id="villeArrivee" value="#{organiserMissionController.entity.deplacement.localiteArrivee}" required="#{required}" requiredMessage="#{valueRequiredMessage}" 
-					converter="#{objectConverter}" rendered="#{editable}" validator="#{validationManager.validateLocaliteArrivee}">
+					converter="#{objectConverter}" rendered="#{editable}" >
 					<f:selectItem noSelectionOption="" itemLabel="#{noSelectionOptionMessage}"/>
 					<f:selectItems value="#{villesHorsCoteDIvoire}"/>
 					<f:validateBean validationGroups="#{clientValidationGroupClass}" />

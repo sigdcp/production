@@ -84,11 +84,11 @@
 		
 		<p:fieldset legend="Transit">				
 			
-			<h:panelGrid columns="#{editable?6:4}" columnClasses="c11" rendered="#{enregistrerDemandeTRFormController.editable}">				
+			<h:panelGrid id="typeDepPg" columns="#{editable?6:4}" columnClasses="c11" rendered="#{enregistrerDemandeTRFormController.editable}">				
 				<p:outputLabel for="typeDepense" value="Est ce une prise en charge ou un remboursement ?" />
 				<p:selectOneRadio id="typeDepense" value="#{enregistrerDemandeTRFormController.entity.deplacement.typeDepense}"  required="#{required}" requiredMessage="#{valueRequiredMessage}" converter="#{objectConverter}">
 					<f:selectItems value="#{typeDepenes}"/>
-					<p:ajax event="click" update="@form" listener="#{enregistrerDemandeTRFormController.typeDepenseListener}" process="@form"/>
+					<p:ajax event="click" update="op" listener="#{enregistrerDemandeTRFormController.typeDepenseListener}" process="@this"/>
 				</p:selectOneRadio>
 				<h:outputText value="" rendered="#{not editable}"/>
 				<p:message for="typeDepense" /> 
@@ -135,7 +135,9 @@
 			</h:panelGrid>
 		</p:fieldset>
 		
-		<sigdcp:inputPiece id="pieceUploader" uploader="#{enregistrerDemandeTRFormController.pieceJustificativeUploader}"/>
+		<p:outputPanel id="op">
+			<sigdcp:inputPiece id="pieceUploader1" uploader="#{enregistrerDemandeTRFormController.pieceJustificativeUploader}"/>
+		</p:outputPanel>
 	
 	</ui:composition>
 </body>

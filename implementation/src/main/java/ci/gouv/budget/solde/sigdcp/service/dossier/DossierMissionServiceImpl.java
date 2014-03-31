@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
 
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.resource.spi.IllegalStateException;
 
@@ -25,6 +26,7 @@ import ci.gouv.budget.solde.sigdcp.service.ServiceException;
 import ci.gouv.budget.solde.sigdcp.service.indemnite.GroupeMissionService;
 import ci.gouv.budget.solde.sigdcp.service.utils.validaton.DossierMissionValidator;
 
+@Stateless
 public class DossierMissionServiceImpl extends AbstractDossierServiceImpl<DossierMission> implements DossierMissionService,Serializable {
 	
 	private static final long serialVersionUID = -7765679080076677680L;
@@ -56,7 +58,8 @@ public class DossierMissionServiceImpl extends AbstractDossierServiceImpl<Dossie
 	
 	@Override
 	protected DossierMission createDossier() {
-		throw new RuntimeException(new IllegalStateException());
+		return null;
+		//throw new RuntimeException(new IllegalStateException());
 	}
 		
 	@Override

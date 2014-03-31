@@ -182,6 +182,7 @@ public class OrganiserMissionController extends AbstractDemandeController<Missio
 	public void ajouterParticipant(){
 		if(StringUtils.isEmpty(matricule))
 			return;
+		matricule = matricule.trim();
 		boolean exist = false;
 		for(Participant dto : participants)
 			if(dto.getMatricule().equals(matricule)){

@@ -350,10 +350,8 @@ public class SampleDataServiceImpl implements SampleDataService {
 		em.persist(bullsal);
 		TypePieceJustificative cpps = new TypePieceJustificative(Code.TYPE_PIECE_CERTIFICAT_PREMIERE_PRISE_SERVICE, "Certificat de première prise de service");
 		em.persist(cpps);
-		factprof = new TypePieceJustificative(Code.TYPE_PIECE_FACTURE_PROFORMA, "Facture proforma");
-		em.persist(factprof);
-		factdef = new TypePieceJustificative(Code.TYPE_PIECE_FACTURE_DEFINITIVE, "Facture définitive");
-		em.persist(factdef);
+		em.persist(factprof = new TypePieceJustificative(Code.TYPE_PIECE_FACTURE_PROFORMA, "Facture proforma"));
+		em.persist(factdef = new TypePieceJustificative(Code.TYPE_PIECE_FACTURE_DEFINITIVE, "Facture définitive"));
 		TypePieceJustificative extdeces = new TypePieceJustificative(Code.TYPE_PIECE_EXTRAIT_DECES, "Extrait du régistre des actes de décès");
 		em.persist(extdeces);
 		TypePieceJustificative cpc = new TypePieceJustificative(Code.TYPE_PIECE_CERTIFICAT_PRESENCE_CORPS, "Certificat de Présence au corps");
@@ -452,7 +450,7 @@ public class SampleDataServiceImpl implements SampleDataService {
 			p.getConfig().setPrincipale(true);
 			p.getConfig().setAdministrative(true);
 			em.persist(pjaf(trmae,typeDepense,null, cps));
-			em.persist(pjaf(trmae,typeDepense,null, factprof));
+			//em.persist(pjaf(trmae,typeDepense,null, factprof));
 			//em.persist(pjaf(trmae,typeDepense,null, ccs));
 			//em.persist(pjaf(trmae,typeDepense,null, attmae));
 			
@@ -467,7 +465,7 @@ public class SampleDataServiceImpl implements SampleDataService {
 			em.persist(p = pjaf(trstage,typeDepense,fonctionnaire, decisionMiseStage));
 			p.getConfig().setPrincipale(true);
 			p.getConfig().setAdministrative(true);
-			em.persist(pjaf(trstage,typeDepense,fonctionnaire, factprof));
+			//em.persist(pjaf(trstage,typeDepense,fonctionnaire, factprof));
 		}
 		communTRPieceJustificativeAFournir(trstage);
 		
@@ -619,7 +617,7 @@ public class SampleDataServiceImpl implements SampleDataService {
 		Personnel personnelDirecteur = creerPersonnel(creerAgentEtatReference("900801D", "Yao", "Constant", date(1,1,1960)),"directeur",roleDirecteur);
 		Personnel personnelDirecteur1 = creerPersonnel(creerAgentEtatReference("900802D", "Ali", "Bamba", date(1,1,1960)),"directeur1",roleDirecteur,roleLiquidateur);
 		Personnel personnelDirecteur2 = creerPersonnel(creerAgentEtatReference("900803D", "Zadi", "Kacou", date(1,1,1960)),"directeur2",roleDirecteur,roleResponsable);
-		Personnel personnelDirecteur3 = creerPersonnel(creerAgentEtatReference("900804D", "Molle", "Jules", date(1,1,1960)),"directeur3",roleDirecteur,roleResponsable,roleLiquidateur);
+		Personnel personnelDirecteur3 = creerPersonnel(creerAgentEtatReference("900804D", "Molle", "Jules", date(1,1,1960)),"directeur3",roleDirecteur,roleResponsable,roleLiquidateur,rolePF,rolePayeur,roleGCS);
 		
 		/*
 		agentEtat1 = creerAgentEtatReference(fonctionnaire,"096000T", "Fiellou", "N'Dri", date(1,1,1960), Sexe.MASCULIN,situationMatrimoniale1, coteDivoire, null,null,null,null,null,null,null);
@@ -902,8 +900,8 @@ public class SampleDataServiceImpl implements SampleDataService {
 	}
 	
 	public void communTRPieceJustificativeAFournir(NatureDeplacement natureDeplacement){
-		em.persist(pjaf(natureDeplacement,priseEnCharge,null, factprof,Boolean.TRUE));
-		em.persist(pjaf(natureDeplacement,remboursement,null, factdef,Boolean.TRUE));
+		em.persist(pjaf(natureDeplacement,priseEnCharge,null, factprof));
+		em.persist(pjaf(natureDeplacement,remboursement,null, factdef));
 	}
 	
 	private NatureDeplacement creerNatureDeplacement(CategorieDeplacement categorie,String code,String libelle){

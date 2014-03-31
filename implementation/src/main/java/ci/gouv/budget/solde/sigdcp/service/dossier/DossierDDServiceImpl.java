@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
 
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import ci.gouv.budget.solde.sigdcp.dao.dossier.DossierDDDao;
@@ -27,6 +28,7 @@ import ci.gouv.budget.solde.sigdcp.model.indemnite.TypeIndemniteTranche;
 import ci.gouv.budget.solde.sigdcp.service.ServiceException;
 import ci.gouv.budget.solde.sigdcp.service.utils.validaton.DossierDDValidator;
 
+@Stateless
 public class DossierDDServiceImpl extends AbstractDossierServiceImpl<DossierDD> implements DossierDDService,Serializable {
 	
 	private static final long serialVersionUID = -7765679080076677680L;

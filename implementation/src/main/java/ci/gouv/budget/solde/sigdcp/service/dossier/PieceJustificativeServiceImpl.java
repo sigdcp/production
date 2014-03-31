@@ -54,12 +54,14 @@ public class PieceJustificativeServiceImpl extends AbstractDocumentServiceImpl<P
 		
 		//if(Code.NATURE_DEPLACEMENT_TRANSIT_BAGAGGES.equals(dossier.getDeplacement().getNature().getCode()))
 		
-		if(pieceJustificatives==null){
+		if(!Code.CATEGORIE_DEPLACEMENT_DEFINITIF.equals(dossier.getDeplacement().getNature().getCategorie().getCode()) || pieceJustificatives==null){
+			
 			//quelles sont les pieces a fournir
 			//System.out.println(dossier.getDeplacement().getNature().getCode()+" "+typeDepenseId);
 			//System.out.println(ToStringBuilder.reflectionToString(dossier.getDeplacement(), ToStringStyle.MULTI_LINE_STYLE));
 			Collection<PieceJustificativeAFournir> pieceJustificativeAFournirs = pieceJustificativeAFournirDao.readBaseByNatureDeplacementIdByTypeDepenseId(dossier.getDeplacement().getNature().getCode(),
 					dossier.getDeplacement().getTypeDepense().getCode());
+			
 			//System.out.println("PJF : "+pieceJustificativeAFournirs);
 			//quelles sont les pieces fournis
 			Collection<PieceJustificative> pieceJustificativesFournis;
@@ -91,6 +93,7 @@ public class PieceJustificativeServiceImpl extends AbstractDocumentServiceImpl<P
 		
 		PieceJustificativeAFournir modelPiece = null;
 		if(parametres!=null){
+			
 			PieceJustificative pieceJustificativeExistante = null;
 			//Extrait de mariage
 			modelPiece = pieceJustificativeAFournirDao.readByNatureDeplacementIdByTypePieceIdByTypeDepenseId(dossier.getDeplacement().getNature().getCode(), Code.TYPE_PIECE_EXTRAIT_MARIAGE,

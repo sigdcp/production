@@ -10,8 +10,10 @@ import javax.inject.Inject;
 
 import lombok.Getter;
 import ci.gouv.budget.solde.sigdcp.controller.ui.AbstractEffectuerOperationPersonnelController;
+import ci.gouv.budget.solde.sigdcp.model.Code;
 import ci.gouv.budget.solde.sigdcp.model.dossier.BordereauTransmissionDto;
 import ci.gouv.budget.solde.sigdcp.model.dossier.Traitement;
+import ci.gouv.budget.solde.sigdcp.model.dossier.TraitementPieceProduite;
 import ci.gouv.budget.solde.sigdcp.service.dossier.BordereauTransmissionService;
 
 @Getter
@@ -25,11 +27,13 @@ public abstract class AbstractBordereauTransmissionListeController extends Abstr
 	protected void initialisation() {
 		super.initialisation();
 		listTitle = "Liste des bordereaux de transmissions";
+		selected = new BordereauTransmissionDto(null);
+		selected.setTraitement(new TraitementPieceProduite());
 	}
 	
 	@Override
 	protected String[] defaultNatureDeplacmentCodeListe() {
-		return touteLesDepenses();
+		return new String[]{Code.NATURE_DEPLACEMENT_AFFECTATION,Code.NATURE_DEPLACEMENT_MUTATION,Code.NATURE_DEPLACEMENT_RETRAITE,Code.NATURE_DEPLACEMENT_MISSION_HCI};
 	}
 	
 	@Override

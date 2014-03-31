@@ -9,6 +9,8 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.transaction.Transactional.TxType;
@@ -44,13 +46,12 @@ import ci.gouv.budget.solde.sigdcp.model.dossier.TraitementDossier;
 import ci.gouv.budget.solde.sigdcp.model.dossier.TypePieceProduite;
 import ci.gouv.budget.solde.sigdcp.model.dossier.ValidationType;
 import ci.gouv.budget.solde.sigdcp.model.identification.AgentEtat;
-import ci.gouv.budget.solde.sigdcp.model.identification.Personne;
 import ci.gouv.budget.solde.sigdcp.service.ActionType;
 import ci.gouv.budget.solde.sigdcp.service.DefaultServiceImpl;
 import ci.gouv.budget.solde.sigdcp.service.ServiceException;
 import ci.gouv.budget.solde.sigdcp.service.ServiceExceptionType;
 
-//@Log
+
 public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extends DefaultServiceImpl<DOSSIER, String> implements AbstractDossierService<DOSSIER>,Serializable {
 	
 	private static final long serialVersionUID = -7765679080076677680L;
@@ -121,6 +122,7 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 	protected String numero(DOSSIER dossier,Collection<PieceJustificative> pieceJustificatives){
 		return System.currentTimeMillis()+"";
 	}
+	
 	
 	@Transactional(value=TxType.REQUIRED)
 	@Override
@@ -202,8 +204,6 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 		}
 	}
 	
-	@Transactional(value=TxType.REQUIRED)
-	@SuppressWarnings("unchecked")
 	@Override
 	public void valider(String natureOperationCode,Collection<DossierDto> dtos) {
 		
@@ -245,9 +245,9 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 	/* Fonctions techniques  */
 	
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
-	public DossierDto findSaisieByPersonneByNatureDeplacement(Personne personne, NatureDeplacement natureDeplacement,String numero,String codeNatureOperation) {
+	public DossierDto findSaisieByNatureDeplacement(NatureDeplacement natureDeplacement,String numero,String codeNatureOperation) {
 		DOSSIER dossier = null;
 		DossierDto dto;
 		if(StringUtils.isNotEmpty(numero)){
@@ -256,16 +256,18 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 				serviceException(ServiceExceptionType.RESOURCE_NOT_FOUND);
 			dto = buildDto(dossier, codeNatureOperation);
 		}else{
-			dossier = ((AbstractDossierDao<DOSSIER>)dao).readSaisieByPersonneByNatureDeplacement(personne, natureDeplacement);
+			dossier = ((AbstractDossierDao<DOSSIER>)dao).readSaisieByPersonneByNatureDeplacement(utilisateur(), natureDeplacement);
 			if(dossier==null){// Nouveau dossier
 				dossier = createDossier();
 				dto = new DossierDto(dossier);
-				dto.setNatureOperationCode(Code.NATURE_OPERATION_SAISIE);
-				dossier.setBeneficiaire((AgentEtat) personne);
-				dossier.getDeplacement().setNature(natureDeplacement);
-				DOSSIER dernierCree = ((AbstractDossierDao<DOSSIER>)dao).readDernierCreeByAgentEtat((AgentEtat) personne);
-				if(dernierCree!=null)
-					initSaisie(dernierCree, dossier);
+				if(dossier!=null){
+					dto.setNatureOperationCode(Code.NATURE_OPERATION_SAISIE);
+					dossier.setBeneficiaire((AgentEtat) utilisateur());
+					dossier.getDeplacement().setNature(natureDeplacement);
+					DOSSIER dernierCree = ((AbstractDossierDao<DOSSIER>)dao).readDernierCreeByAgentEtat((AgentEtat) utilisateur());
+					if(dernierCree!=null)
+						initSaisie(dernierCree, dossier);
+				}
 			}else{
 				// Dossier en cours de saisie n'ayant jamais été soumis
 				dto = buildDto(dossier, codeNatureOperation);
@@ -286,37 +288,44 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 		else
 			destination.setService(source.getService());
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
+	
 	public Collection<DOSSIER> findByNatureDeplacementAndStatut(NatureDeplacement natureDeplacement, Statut statut) {
 		return ((AbstractDossierDao<DOSSIER>)dao).readByNatureDeplacementAndStatut(natureDeplacement, statut);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<DOSSIER> findByNatureDeplacementsByStatut(Collection<NatureDeplacement> natureDeplacements, Statut statut) {
 		return ((AbstractDossierDao<DOSSIER>)dao).readByNatureDeplacementsByStatut(natureDeplacements, statut);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<DOSSIER> findByNatureDeplacement(NatureDeplacement natureDeplacement) {
 		return ((AbstractDossierDao<DOSSIER>)dao).readByNatureDeplacement(natureDeplacement);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<DOSSIER> findByStatut(Statut statut) {
 		return ((AbstractDossierDao<DOSSIER>)dao).readByStatut(statut);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<DOSSIER> findByStatutId(String statutId) {
 		return ((AbstractDossierDao<DOSSIER>)dao).readByStatutId(statutId);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<DOSSIER> findByAgentEtat(AgentEtat agentEtat) {
 		return ((AbstractDossierDao<DOSSIER>)dao).readByAgentEtat(agentEtat);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<DossierDto> findByAgentEtatAndAyantDroit(AgentEtat agentEtat) {
 		Collection<DossierDto> dtos = new LinkedList<>();
@@ -325,16 +334,19 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 		return dtos;
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<DOSSIER> findByDeplacement(Deplacement deplacement) {
 		return ((AbstractDossierDao<DOSSIER>)dao).readByDeplacement(deplacement);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public DOSSIER findDernierCreeByAgentEtat(AgentEtat agentEtat) {
 		return ((AbstractDossierDao<DOSSIER>)dao).readDernierCreeByAgentEtat(agentEtat);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<DossierDto> findByBordereauId(Long bordereauTransmissionId) {
 		//System.out.println(bordereauTransmissionId);
@@ -342,6 +354,7 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 		return dtos(null,((AbstractDossierDao<DOSSIER>)dao).readByBordereauId(bordereauTransmissionId));
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public String findInstructions(DOSSIER dossier) {
 		StringBuilder instructions = new StringBuilder();
@@ -355,15 +368,15 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 		
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public BigDecimal calculerMontantIndemnisation(DOSSIER dossier) {
 		return new BigDecimal("15000");
 	}
 
-	@SuppressWarnings("unchecked")
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<DossierDto> findATraiterByNatureDeplacementsByNatureOperationId(Collection<NatureDeplacement> natureDeplacements,String natureOperationId) {
-		
 		NatureOperation natureOperation = genericDao.readByClass(NatureOperation.class, natureOperationId);
 		String codeOpPrec = natureOperation.getPrecedent().getCode();
 		String codeStatutAcc = operationValidationConfigDao.readByNatureOperationIdByValidationType(codeOpPrec, ValidationType.ACCEPTER).getStatutResultat().getCode();
@@ -373,8 +386,12 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 		Collection<DOSSIER>  dossiers = null;
 		switch(natureOperationId){
 		case Code.NATURE_OPERATION_CONFORMITE: dossiers =  dossierDao.readCourrierNonNullByNatureDeplacementsByNatureOperationIdByStatutId(natureDeplacements,codeOpPrec,codeStatutAcc);break;
-		
+		//case Code.NATURE_OPERATION_ETABLISSEMENT_BL: dossiers =  dossierDao.readCourrierNonNullByNatureDeplacementsByNatureOperationIdByStatutId(natureDeplacements,codeOpPrec,codeStatutAcc);break;
 		default: dossiers = dossierDao.readByNatureDeplacementsByNatureOperationIdByStatutId(natureDeplacements,codeOpPrec,codeStatutAcc );break;
+		}
+		
+		if(Code.NATURE_OPERATION_ETABLISSEMENT_BL.equals(natureOperationId)){
+			dossiers.addAll(dossierDao.readBulletinLiquidationExisteLiquidableByNatureDeplacements(natureDeplacements, AspectLiquide.DEMANDE));
 		}
 		
 		OperationValidationConfig differeConfig = operationValidationConfigDao.readByNatureOperationIdByValidationType(natureOperationId, ValidationType.DIFFERER);
@@ -386,11 +403,13 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 		return dtos;
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<DossierDto> findALiquiderByNatureDeplacementsByAspectLiquide(Collection<NatureDeplacement> natureDeplacements,AspectLiquide aspectLiquide){
 		return findATraiterByNatureDeplacementsByNatureOperationId(natureDeplacements, Code.NATURE_OPERATION_ETABLISSEMENT_BL);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@SuppressWarnings("unchecked")
 	@Override
 	public DossierDto findDtoByDossier(Dossier dossier){
@@ -410,6 +429,7 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 		return false;
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public DossierDto buildDto(DOSSIER dossier,String natureOperationCode){
 		DossierDto dto = new DossierDto(dossier);
 		TraitementDossier td = dossier.getDernierTraitement();
@@ -446,6 +466,15 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 				dto.setCourrier("Courrier N°"+dto.getDossier().getCourrier().getNumero()+" du "+formatDate(dto.getDossier().getCourrier().getDate()));
 		}*/
 		
+		OperationValidationConfig creationOpConfig = operationValidationConfigDao.readByNatureOperationIdByValidationType(Code.NATURE_OPERATION_ETABLISSEMENT_BL, ValidationType.ACCEPTER);
+		Collection<TraitementDossier> blTraitements = traitementDossierDao.readByDossierByNatureOperationIdByStatutId(dossier, Code.NATURE_OPERATION_ETABLISSEMENT_BL, 
+				creationOpConfig.getStatutResultat().getCode());
+		TraitementDossier creationBlTraitement = blTraitements.isEmpty()?null:blTraitements.iterator().next();
+		if(creationBlTraitement!=null){
+			//dto.setDateCreationBL(creationBlTraitement.getOperation().getDate());
+			dto.getBulletinLiquidations().add((BulletinLiquidation) creationBlTraitement.getPieceProduite());
+		}
+		
 		if(Code.NATURE_OPERATION_SAISIE.equals(dto.getNatureOperationCode())){
 			dto.setPieceAdministrative(new PieceJustificative(dossier, null, 
 					pieceJustificativeAFournirDao.readAdministrativeByNatureDeplacementIdByTypeDepenseId(dossier.getDeplacement().getNature().getCode(), dossier.getDeplacement().getTypeDepense().getCode())
@@ -467,12 +496,11 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 				bl.setDossier(dossier);
 				bl.setType(genericDao.readByClass(TypePieceProduite.class, Code.TYPE_PIECE_PRODUITE_BL));
 				bl.setAspect(AspectLiquide.DEMANDE);
-				BigDecimal pourcentage = new BigDecimal("1");
 				
 				if(Code.TYPE_DEPENSE_PRISE_EN_CHARGE.equals(dossier.getDeplacement().getTypeDepense().getCode()))
-					if(dossier instanceof DossierMission)
-						bl.setPourcentage(new BigDecimal("0.8"));
-					else
+					if(dossier instanceof DossierMission){
+						bl.setPourcentage(new BigDecimal(dto.getBulletinLiquidations().isEmpty()?"0.8":"0.2"));
+					}else
 						bl.setPourcentage(new BigDecimal("1"));
 				else
 					bl.setPourcentage(new BigDecimal("1"));
@@ -489,17 +517,7 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 				creerDossierOpConfig.getStatutResultat().getCode()).iterator().next().getOperation().getDate());
 		
 		OperationValidationConfig visaOpConfig = operationValidationConfigDao.readByNatureOperationIdByValidationType(Code.NATURE_OPERATION_VISA_BL, ValidationType.ACCEPTER);
-		OperationValidationConfig creationOpConfig = operationValidationConfigDao.readByNatureOperationIdByValidationType(Code.NATURE_OPERATION_ETABLISSEMENT_BL, ValidationType.ACCEPTER);
 		
-		Collection<TraitementDossier> blTraitements = traitementDossierDao.readByDossierByNatureOperationIdByStatutId(dossier, Code.NATURE_OPERATION_ETABLISSEMENT_BL, 
-				creationOpConfig.getStatutResultat().getCode());
-		
-		TraitementDossier creationBlTraitement = blTraitements.isEmpty()?null:blTraitements.iterator().next();
-		
-		if(creationBlTraitement!=null){
-			//dto.setDateCreationBL(creationBlTraitement.getOperation().getDate());
-			dto.getBulletinLiquidations().add((BulletinLiquidation) creationBlTraitement.getPieceProduite());
-		}
 		
 		Boolean blVise = !traitementDossierDao.readByDossierByNatureOperationIdByStatutId(dossier, Code.NATURE_OPERATION_VISA_BL, visaOpConfig.getStatutResultat().getCode()).isEmpty();
 		if(blVise || StringUtils.isNotEmpty(natureOperationCode) && (Code.NATURE_OPERATION_VALIDATION_BL.equals(natureOperationCode) || 

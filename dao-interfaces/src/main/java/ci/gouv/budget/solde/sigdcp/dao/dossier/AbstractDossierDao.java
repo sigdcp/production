@@ -58,6 +58,10 @@ public interface AbstractDossierDao<DOSSIER extends Dossier> extends DataAccessO
 	
 	Collection<DOSSIER> readCourrierNonNullByNatureDeplacementsByNatureOperationIdByStatutId(Collection<NatureDeplacement> natureDeplacements,String natureOperationId,String statutId);
 	
+	//Collection<DOSSIER> readConformeBulletinNullByNatureDeplacements(Collection<NatureDeplacement> natureDeplacements);
+	
+	Collection<DOSSIER> readBulletinLiquidationExisteLiquidableByNatureDeplacements(Collection<NatureDeplacement> natureDeplacements,AspectLiquide aspectLiquide);
+	
 	Collection<DOSSIER> readByNatureDeplacementsByAspectLiquideNotExist(Collection<NatureDeplacement> natureDeplacements,AspectLiquide aspectLiquide);
 } 
    

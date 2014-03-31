@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.transaction.Transactional.TxType;
@@ -29,19 +31,18 @@ import ci.gouv.budget.solde.sigdcp.model.dossier.TraitementDossier;
 import ci.gouv.budget.solde.sigdcp.model.dossier.TypeDepense;
 import ci.gouv.budget.solde.sigdcp.model.dossier.ValidationType;
 import ci.gouv.budget.solde.sigdcp.model.fichier.Fichier;
+import ci.gouv.budget.solde.sigdcp.model.geographie.Localite;
 import ci.gouv.budget.solde.sigdcp.model.identification.AgentEtat;
 import ci.gouv.budget.solde.sigdcp.service.ActionType;
 import ci.gouv.budget.solde.sigdcp.service.DefaultServiceImpl;
-import ci.gouv.budget.solde.sigdcp.service.ServiceException;
 import ci.gouv.budget.solde.sigdcp.service.ServiceExceptionType;
 import ci.gouv.budget.solde.sigdcp.service.dossier.DeplacementService;
 import ci.gouv.budget.solde.sigdcp.service.dossier.DossierMissionService;
 import ci.gouv.budget.solde.sigdcp.service.dossier.OperationService;
 import ci.gouv.budget.solde.sigdcp.service.dossier.TraitementDossierService;
-import ci.gouv.budget.solde.sigdcp.service.utils.TransactionDebugger;
 import ci.gouv.budget.solde.sigdcp.service.utils.validaton.MissionExecuteeValidator;
 
-//@Stateless
+@Stateless
 public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecutee, Long> implements MissionExecuteeService , Serializable {
 
 	private static final long serialVersionUID = -7601857525393731774L;
@@ -61,8 +62,6 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 		super(dao); 
 	}
 
-	@TransactionDebugger
-	@Transactional(value=TxType.REQUIRED)
 	@Override
 	public void enregistrer(ActionType actionType,MissionExecutee missionExecutee,PieceJustificative communication, Collection<DossierDto> dossierDtos) {
 		
@@ -71,8 +70,7 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 		if(!validator.isSucces())
 			serviceException(validator.getMessagesAsString());
 		*/
-		throw new ServiceException("Dont care");
-		/*
+		
 		switch(actionType){
 		case ENREGISTRER:
 			enregistrer(missionExecutee,communication, dossierDtos);
@@ -80,7 +78,7 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 		case SOUMETTRE:
 			soumettre(missionExecutee,communication, dossierDtos);
 			break;
-		}*/
+		}
 	}
 	
 	private void enregistrer(MissionExecutee missionExecutee,PieceJustificative communication, Collection<DossierDto> dossierDtos){
@@ -158,6 +156,7 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 		}
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public MissionExecuteeDto findSaisieByNumero(Long id) {
 		MissionExecutee missionExecutee = null;
@@ -183,6 +182,7 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 				missionExecutee.setDeplacement(new Deplacement());
 				missionExecutee.getDeplacement().setNature(genericDao.readByClass(NatureDeplacement.class, Code.NATURE_DEPLACEMENT_MISSION_HCI));
 				missionExecutee.getDeplacement().setTypeDepense(genericDao.readByClass(TypeDepense.class, Code.TYPE_DEPENSE_PRISE_EN_CHARGE));
+				missionExecutee.getDeplacement().setLocaliteDepart(genericDao.readByClass(Localite.class, Code.LOCALITE_ABIDJAN));
 			}else{//mission en cours de saisie
 				
 			}
@@ -192,13 +192,13 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 		
 		return dto;
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Transactional(value=TxType.NOT_SUPPORTED)
 	@Override
 	public MissionExecutee findByDossier(DossierMission dossierMission) {
 		return ((MissionExecuteeDao)dao).readByDossier(dossierMission);
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Transactional(value=TxType.NOT_SUPPORTED)
 	@Override
 	public Collection<MissionExecuteeDto> findMissionOrganisees() {
@@ -208,7 +208,7 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 
 		return dtos;
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public MissionExecuteeDto buildDto(MissionExecutee missionExecutee){
 		MissionExecuteeDto dto = new MissionExecuteeDto(missionExecutee);
 		for(Dossier dossier : dossierService.findByDeplacement(missionExecutee.getDeplacement())){

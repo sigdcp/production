@@ -33,7 +33,7 @@ public class ValiderBordereauLiquidationController extends AbstractValidationBor
 	
 	@Override
 	protected String[] defaultNatureDeplacmentCodeListe() {
-		return null;
+		return new String[]{Code.NATURE_DEPLACEMENT_AFFECTATION,Code.NATURE_DEPLACEMENT_MUTATION,Code.NATURE_DEPLACEMENT_RETRAITE,Code.NATURE_DEPLACEMENT_MISSION_HCI};
 	}
 		
 	@Override

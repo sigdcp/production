@@ -11,7 +11,7 @@
 		<!--
 		<p:fieldset legend="#{constantResources.text('criteresrecherche')}" >
 		-->
-			<p:panelGrid columns="2" styleClass="panelGridNoBorder">
+			<p:panelGrid columns="3" styleClass="panelGridNoBorder">
 				<h:panelGroup>
 					<ui:insert name="criteresrecherche" />
 				</h:panelGroup>
@@ -20,7 +20,14 @@
 						<ui:param name="command" value="#{controller.rechercherCommande}" />
 					</ui:include>
 				</h:panelGroup>	
-								
+				<h:panelGroup>
+					<p:panelGrid columns="4" rendered="#{controller.editable and controller.addDetailsCommand.rendered}" styleClass="panelGridNoBorder" >
+						<p:outputLabel for="numeroLigne" value="#{controller.numeroLibelle}"/>
+						<p:inputText id="numeroLigne" value="#{controller.numeroLigne}" />
+						<p:message for="numeroLigne" />
+						<p:commandButton value="Ajouter" action="#{controller.addDetailsCommand.execute(null)}" icon="ui-icon-plus" update="datatable,numeroLigne,infosop"/>
+					</p:panelGrid>
+				</h:panelGroup>				
 			</p:panelGrid>
 		<!--
 		</p:fieldset>
@@ -29,12 +36,7 @@
 		
 		<p:spacer height="5" />
 		
-		<p:panelGrid columns="4" rendered="#{controller.editable and controller.addDetailsCommand.rendered}" styleClass="panelGridNoBorder" >
-			<p:outputLabel for="numeroLigne" value="#{controller.numeroLibelle}"/>
-			<p:inputText id="numeroLigne" value="#{controller.numeroLigne}" />
-			<p:message for="numeroLigne" />
-			<p:commandButton value="Ajouter" action="#{controller.addDetailsCommand.execute(null)}" icon="ui-icon-plus" update="datatable,numeroLigne,infosop"/>
-		</p:panelGrid>
+		
 		
 		<p:outputPanel id="infosop" >
 			<ui:insert name="infos" />

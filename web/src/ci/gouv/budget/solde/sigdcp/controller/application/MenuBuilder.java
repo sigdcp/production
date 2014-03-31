@@ -111,7 +111,9 @@ public class MenuBuilder implements Serializable {
 		menuManager.addMenuItem(formulerUneDemande, "menu.formulerdemande.tr.stage","demande_t",new Object[]{
 				webConstantResources.getRequestParamCrudType(),webConstantResources.getRequestParamCrudCreate(),webConstantResources.getRequestParamNatureDeplacement(),Code.NATURE_DEPLACEMENT_TRANSIT_BAGAGGES_STAGIAIRE});
 		
-		menuManager.addMenuItem(formulerUneDemande,"menu.formulerdemande.mission",null, "demande_m",new Object[]{});
+		menuManager.addMenuItem(formulerUneDemande,"menu.formulerdemande.mission",null, "demande_m",new Object[]{
+				webConstantResources.getRequestParamCrudType(),webConstantResources.getRequestParamCrudUpdate()
+		});
 		
 		if(!roleManager.isAgentSolde())
 			menuManager.addMenuItem(formulerUneDemande, "menu.identification.agentsolde",null,"", new Object[]{});
@@ -152,7 +154,10 @@ public class MenuBuilder implements Serializable {
 			else if (roleManager.isDirecteur())
 				liquidationFirstTab = "viserbulletinliquidation";
 
-			menuManager.addMenuItem(traitement, "menu.traitement.liquider", liquidationFirstTab, new Object[] {});	
+			menuManager.addMenuItem(traitement, "menu.traitement.liquider.bulletin", liquidationFirstTab, new Object[] {
+					webConstantResources.getRequestParamLiquidation(),webConstantResources.getRequestParamLiquidationBulletin()});	
+			menuManager.addMenuItem(traitement, "menu.traitement.liquider.bontransport", liquidationFirstTab, new Object[] {
+					webConstantResources.getRequestParamLiquidation(),webConstantResources.getRequestParamLiquidationBonTransport()});	
 		}
 		
 		if (roleManager.isPayeur())

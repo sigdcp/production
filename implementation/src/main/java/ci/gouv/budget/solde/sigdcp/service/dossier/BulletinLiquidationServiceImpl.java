@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.transaction.Transactional.TxType;
 
 import ci.gouv.budget.solde.sigdcp.dao.dossier.BulletinLiquidationDao;
 import ci.gouv.budget.solde.sigdcp.dao.dossier.TraitementDossierDao;
@@ -23,7 +24,7 @@ import ci.gouv.budget.solde.sigdcp.model.dossier.OperationValidationConfig;
 import ci.gouv.budget.solde.sigdcp.model.dossier.ValidationType;
 import ci.gouv.budget.solde.sigdcp.service.ServiceException;
 
-//@Stateless
+@Stateless
 public class BulletinLiquidationServiceImpl extends AbstractPieceProuiteServiceImpl<BulletinLiquidation,BulletinLiquidationDto> implements BulletinLiquidationService , Serializable {
 
 	private static final long serialVersionUID = -7601857525393731774L;
@@ -38,21 +39,25 @@ public class BulletinLiquidationServiceImpl extends AbstractPieceProuiteServiceI
 		super(dao); 
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<BulletinLiquidation> findByNatureDeplacement(NatureDeplacement natureDeplacement) {
 		return null;
 	}
 
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<BulletinLiquidation> findByBordereau(BordereauTransmission bordereauTransmission) {
 		return ((BulletinLiquidationDao)dao).readByBordereau(bordereauTransmission);
 	} 
 
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public BulletinLiquidationDto findByNumero(String numero) {
 		return dto(((BulletinLiquidationDao)dao).readByNumero(numero), null);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
 	public Collection<BulletinLiquidationDto> findATraiterByNatureDeplacementsByNatureOperationId(Collection<NatureDeplacement> natureDeplacements, String natureOperationId) {
 		NatureOperation natureOperation = genericDao.readByClass(NatureOperation.class, natureOperationId);
@@ -89,26 +94,30 @@ public class BulletinLiquidationServiceImpl extends AbstractPieceProuiteServiceI
 				dto.getTraitement().setValidationType(ValidationType.ACCEPTER);
 			}
 		}
-		
+		// on applique la notion de disponible disponible
 		if(Code.NATURE_OPERATION_ETABLISSEMENT_BTBL.equals(natureOperationId)){
-			BigDecimal disponible = natureDeplacements.iterator().next().getCategorie().getDisponible();
-			Collection<BulletinLiquidationDto> _dtos = new ArrayList<>();
-			if(disponible==null || disponible.equals(BigDecimal.ZERO))
-				return _dtos;
-			for(BulletinLiquidationDto dto : dtos){
-				disponible = disponible.subtract(dto.getPiece().getMontant());
-				if(disponible.compareTo(BigDecimal.ZERO)>=0){
-					_dtos.add(dto);
-				}else
-					disponible = disponible.add(dto.getPiece().getMontant());
+			NatureDeplacement natureDeplacement = natureDeplacements.iterator().next();
+			if(Code.CATEGORIE_DEPLACEMENT_DEFINITIF.equals(natureDeplacement.getCategorie().getCode())){
+				BigDecimal disponible = natureDeplacement.getCategorie().getDisponible();
+				Collection<BulletinLiquidationDto> _dtos = new ArrayList<>();
+				if(disponible==null || disponible.equals(BigDecimal.ZERO))
+					return _dtos;
+				for(BulletinLiquidationDto dto : dtos){
+					disponible = disponible.subtract(dto.getPiece().getMontant());
+					if(disponible.compareTo(BigDecimal.ZERO)>=0){
+						_dtos.add(dto);
+					}else
+						disponible = disponible.add(dto.getPiece().getMontant());
+				}
+				dtos = _dtos;
+			}else if(Code.CATEGORIE_DEPLACEMENT_MISSION.equals(natureDeplacement.getCode())){
+				return dtos;
 			}
-			dtos = _dtos;
 		}
 		
 		return dtos;
 	}
 
-	@Transactional(value=TxType.REQUIRED)
 	@Override
 	public void valider(NatureDeplacement natureDeplacement, String natureOperationCode, Collection<BulletinLiquidationDto> dtos) throws ServiceException {
 		//validator.setTraitements(traitements);
@@ -148,6 +157,7 @@ public class BulletinLiquidationServiceImpl extends AbstractPieceProuiteServiceI
 		}
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public BulletinLiquidationDto dto(BulletinLiquidation bulletinLiquidation,String natureOperationId){
 		BulletinLiquidationDto dto = new BulletinLiquidationDto(bulletinLiquidation,dossierService.buildDto(bulletinLiquidation.getDossier(), natureOperationId));
 		OperationValidationConfig creerOpConfig = operationValidationConfigDao.readByNatureOperationIdByValidationType(Code.NATURE_OPERATION_ETABLISSEMENT_BL, ValidationType.ACCEPTER);

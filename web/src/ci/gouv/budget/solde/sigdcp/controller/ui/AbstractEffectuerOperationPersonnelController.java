@@ -81,9 +81,15 @@ public abstract class AbstractEffectuerOperationPersonnelController<DATA extends
 			natureDeplacementDisponibles = new ArrayList<>();
 			for(String code : codes)
 				natureDeplacementDisponibles.add(dynamicEnumerationService.findByClass(NatureDeplacement.class, code));
-			items.add(new SelectItem(null, "Tout"));
+			
 		}else{
 			natureDeplacementDisponibles = dynamicEnumerationService.findAllByClass(NatureDeplacement.class);
+			
+		}
+		
+		if(Boolean.TRUE.equals(canShowAllNatureDeplacment())){
+			items.add(new SelectItem(null, "Tout"));
+		}else{
 			natureDeplacement = dynamicEnumerationService.findByClass(NatureDeplacement.class, defaultNatureDeplacementCode());
 		}
 		
@@ -142,7 +148,11 @@ public abstract class AbstractEffectuerOperationPersonnelController<DATA extends
 	protected String[] defaultNatureDeplacmentCodeListe(){
 		return null;
 	}
-			
+	
+	protected Boolean canShowAllNatureDeplacment(){
+		return Boolean.FALSE;
+	}
+	
 	@Override
 	protected List<DATA> load() {
 		Collection<NatureDeplacement> natureDeplacements = null;

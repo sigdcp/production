@@ -11,6 +11,7 @@ import lombok.Setter;
 import ci.gouv.budget.solde.sigdcp.model.Code;
 import ci.gouv.budget.solde.sigdcp.model.calendrier.MissionExecutee;
 import ci.gouv.budget.solde.sigdcp.model.dossier.DossierMission;
+import ci.gouv.budget.solde.sigdcp.model.dossier.NatureDeplacement;
 import ci.gouv.budget.solde.sigdcp.service.calendrier.MissionExecuteeService;
 import ci.gouv.budget.solde.sigdcp.service.dossier.DossierMissionService;
 import ci.gouv.budget.solde.sigdcp.service.resources.CRUDType;
@@ -28,7 +29,13 @@ public class DossierMissionAgentEtatController extends AbstractDossierUIControll
 	@Override
 	protected void initialisation() {
 		super.initialisation();
-		missionExecutee = missionExecuteeService.findByDossier(entity);
+		if(entity!=null)
+			missionExecutee = missionExecuteeService.findByDossier(entity);
+	}
+	
+	@Override
+	protected NatureDeplacement dtoNatureDeplacement(DossierMission dossier) {
+		return genericService.findByClass(NatureDeplacement.class, Code.NATURE_DEPLACEMENT_MISSION_HCI) ;
 	}
 		
 	@Override

@@ -105,6 +105,9 @@ public class WebConstantResources implements Serializable{
 		return new ViewParamConverter(genericService, NatureOperation.class,String.class);
 	}
 	
+	@Getter private final String requestParamLiquidation = "liquidation";
+	@Getter private final String requestParamLiquidationBulletin = "liquidationbul";
+	@Getter private final String requestParamLiquidationBonTransport = "liquidationbt";
 	@Getter private final String requestParamDialogCount = "diagcount";
 	@Getter private final String requestParamTabMenuItemIndex = "tabmiidn";
 	@Getter private final String requestParamPageTemplate = "pagetemplate";

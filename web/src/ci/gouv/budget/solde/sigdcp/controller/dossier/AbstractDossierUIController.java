@@ -1,5 +1,6 @@
 package ci.gouv.budget.solde.sigdcp.controller.dossier;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,10 +51,21 @@ public abstract class AbstractDossierUIController<DOSSIER extends Dossier,DOSSIE
 	protected void initialisation() {
 		super.initialisation();
 		
-		dossierDto = getDossierService().findSaisieByPersonneByNatureDeplacement((AgentEtat) userSessionManager.getUser(), entity.getDeplacement().getNature(),
+		dossierDto = getDossierService().findSaisieByNatureDeplacement(dtoNatureDeplacement(entity),
 				Faces.getRequestParameter(webConstantResources.getRequestParamDossier()),Faces.getRequestParameter(webConstantResources.getRequestParamNatureOperation()));
-
+		
 		entity = (DOSSIER) dossierDto.getDossier();
+		
+		if(entity==null){
+			crudType = CRUDType.READ;
+			messageManager.addInfo("Vous n'avez aucun dossier à completer.");
+			try {
+				Faces.redirect(navigationManager.url("succes",new Object[]{webConstantResources.getRequestParamMessageId(),"notification.aucunedemandeacompleter"},false,false));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return;
+		}
 		
 		//boolean ced = TypeSaisie.COURRIER.equals(dossierDto.getTypeSaisie());
 		courrierDto = new CourrierDto(entity.getCourrier()/*, ced || dossierDto.getDossier().getCourrier()!=null && StringUtils.isNotEmpty(dossierDto.getDossier().getCourrier().getNumero()),ced*/);
@@ -102,12 +114,17 @@ public abstract class AbstractDossierUIController<DOSSIER extends Dossier,DOSSIE
 		defaultSubmitCommand.setValue(text("bouton.soumettre"));
 	}
 	
+	protected NatureDeplacement dtoNatureDeplacement(DOSSIER dossier){
+		return dossier.getDeplacement().getNature();
+	}
+	
 	protected CRUDType operationSaisie(){
 		return CRUDType.CREATE;
 	}
 	
 	@Override
 	protected void afterInitialisation() {
+		if(entity==null) return;
 		super.afterInitialisation();
 		switch(crudType){
 		case CREATE:
@@ -128,10 +145,6 @@ public abstract class AbstractDossierUIController<DOSSIER extends Dossier,DOSSIE
 			defaultSubmitCommand.setRendered(true);
 			break;
 		}
-		/*defaultSubmitCommand.setValue(text(courrierDto.getShowCourrier()?"bouton.enregistrer":CRUDType.DELETE.equals(crudType)?"bouton.annuler":"bouton.soumettre"));
-		enregistrerCommand.setRendered(!CRUDType.READ.equals(crudType) && !CRUDType.DELETE.equals(crudType) && Code.NATURE_OPERATION_SOUMISSION.equals(dossierDto.getNatureOperationCode()));
-		defaultSubmitCommand.setRendered(CRUDType.DELETE.equals(crudType) || (enregistrerCommand.isRendered() && !dossierDto.isNouveau()) || courrierDto.getCourrierEditable());*/
-		
 	}
 	
 	protected String action(){
