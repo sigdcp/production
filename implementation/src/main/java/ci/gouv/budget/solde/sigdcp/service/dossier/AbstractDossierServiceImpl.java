@@ -509,7 +509,7 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 			//dto.setDateCreationBL(creationBlTraitement.getOperation().getDate());
 			dto.getBulletinLiquidations().add((BulletinLiquidation) creationBlTraitement.getPieceProduite());
 		}
-		
+		 
 		chargerPiecesJustificatives(dto);
 		
 		if(Code.NATURE_OPERATION_SAISIE.equals(dto.getNatureOperationCode())){
