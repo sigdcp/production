@@ -104,58 +104,23 @@
 				</p:selectOneMenu>	
 				<h:outputText value="#{organiserMissionController.entity.dossierDuResponsable.beneficiaire.nomPrenoms}" rendered="#{not editable}"/>
 				<p:message for="responsable" rendered="#{editable}"/>
+			    
+			    <p:outputLabel for="typedep" value="Dépense" />
+				<p:selectOneRadio id="typedep" value="#{organiserMissionController.missionExecuteeDto.typeDepense}" converter="#{objectConverter}" rendered="#{editable}"
+					valueChangeListener="#{organiserMissionController.typeDepenseListener}">
+					<f:selectItems value="#{typeDepenes}"/> 
+					<p:ajax event="click" update="pfs" process="typedep"/>
+				</p:selectOneRadio>
+			    <h:outputText value="#{organiserMissionController.entity.deplacement.typeDepense}" rendered="#{not editable}"/>
+			    <p:message for="typedep" rendered="#{editable}"/>
 			         
 			</p:panelGrid>
-			<!--
-			<p:separator/>
-			<div><h:outputText value="Communication" /></div>
-			<p:panelGrid columns="6" styleClass="panelGridNoBorder" columnClasses="c1,c2,c1,c2,c1,c2">
-				<h:outputText value="" rendered="#{editable}"/><p:message for="comnum" rendered="#{editable}"/>
-				<h:outputText value="" rendered="#{editable}"/><p:message for="comdatets" rendered="#{editable}"/>
-				<h:outputText value="" rendered="#{editable}"/><p:message for="comfichier" rendered="#{editable}"/>
-				
-				<p:outputLabel  for="comnum" value="Numéro" />
-				<p:inputText id="comnum" value="#{organiserMissionController.missionExecuteeDto.communication.numero}" required="#{required}" requiredMessage="#{valueRequiredMessage}" 
-					rendered="#{editable}" binding="#{nump}">
-					<f:validateBean validationGroups="#{clientValidationGroupClass}" />
-				</p:inputText>
-			    <h:outputText value="#{organiserMissionController.missionExecuteeDto.communication.numero}" rendered="#{not editable}"/>
-			    
-			    <p:outputLabel for="comdatets" value="Date d'établissement" />
-				<p:calendar id="comdatets" value="#{organiserMissionController.missionExecuteeDto.communication.dateEtablissement}" required="#{required}" pattern="#{constantResources.datePattern}" 
-					requiredMessage="#{valueRequiredMessage}" rendered="#{editable}" validator="#{validationManager.validatePieceJustificativeDateEtablissement}" binding="#{dateets}">
-					<f:validateBean validationGroups="#{clientValidationGroupClass}" />
-					<f:attribute name="numero" value="#{nump}" />
-					<f:attribute name="model" value="#{organiserMissionController.missionExecuteeDto.communication.model}" />
-					
-				</p:calendar>
-				<h:outputText value="#{organiserMissionController.missionExecuteeDto.communication.dateEtablissement}" rendered="#{not editable}"><f:convertDateTime pattern="#{constantResources.datePattern}"/></h:outputText>
-				
-				<p:outputLabel for="comfichier" value="Fichier" />
-				<p:fileUpload value="#{organiserMissionController.communicationFichier}" id="comfichier" mode="simple" required="#{editable}" requiredMessage="#{valueRequiredMessage}" 
-					rendered="#{editable}" binding="#{fichiercom}" validator="#{validationManager.validatePieceJustificativeFichier}">
-					
-					<f:attribute name="numero" value="#{nump}" />
-					<f:attribute name="dateEtablissement" value="#{dateets}" />
-					<f:attribute name="model" value="#{organiserMissionController.missionExecuteeDto.communication.model}" />	
-					
-					<f:validateBean validationGroups="#{clientValidationGroupClass}" />
-				</p:fileUpload>
-					
-			</p:panelGrid>
-			-->
 			
 			<sigdcp:inputPiece uploader="#{organiserMissionController.pieceJustificativeUploader}"/>
-			
-			 <!--
-			<ui:include src="/dossier/include/inputPiecesJustificatives.xhtml">
-				<ui:param name="uploader" value="#{organiserMissionController.pieceJustificativeUploader}"/>
-				<ui:param name="iid" value="commun" />
-			</ui:include>
-			-->
 		</p:fieldset>	
+		
 		<p:spacer height="5"/>
-		<p:fieldset legend="Participant">
+		<p:fieldset id="pfs" legend="Participant">
 			<p:panelGrid columns="4" id="pg" styleClass="panelGridNoBorder" rendered="#{editable}">
 				<p:outputLabel for="matricule" value="Matricule" />
 				<p:inputText id="matricule" value="#{organiserMissionController.matricule}" required="false" requiredMessage="#{valueRequiredMessage}" size="10"/>
@@ -175,13 +140,14 @@
 					</ui:include>
 					
 					<p:panelGrid columns="#{participant.editable?3:4}"  rendered="#{editable}" styleClass="panelGridNoBorder"> 
-						<p:outputLabel for="transmettre" value="Voulez vous transmettre au participant pour complément ?" rendered="#{not organiserMissionController.estChezBeneficiaire(participant)}"/>
+						
+						<p:outputLabel for="transmettre" value="Transmettre au participant?" rendered="#{not organiserMissionController.estChezBeneficiaire(participant)}"/>
 						<p:selectOneButton id="transmettre" value="#{participant.dossierDto.transmettreBeneficiaire}" rendered="#{not organiserMissionController.estChezBeneficiaire(participant)}">
 							<f:selectItem itemLabel="Non" itemValue="false"/>
 							<f:selectItem itemLabel="Oui" itemValue="true"/>
 						</p:selectOneButton>
 						
-						<p:outputLabel for="annuler" value="Cocher pour annuler" rendered="#{not participant.nouveau}"/>
+						<p:outputLabel for="annuler" value="Annuler?" rendered="#{not participant.nouveau}"/>
 						<p:selectBooleanCheckbox id="annuler" value="#{participant.dossierDto.annuler}" rendered="#{not participant.nouveau}"/>
 						
 						<p:commandButton value="Retirer" actionListener="#{organiserMissionController.supprimerParticipant(participant)}" icon="ui-icon-minus" immediate="true" process="@this" update="@form"

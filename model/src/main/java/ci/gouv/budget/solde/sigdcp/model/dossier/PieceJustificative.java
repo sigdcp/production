@@ -34,8 +34,9 @@ public class PieceJustificative  extends Document  implements Serializable{
 	
 	public PieceJustificative() {}
 
-	public PieceJustificative(PieceJustificativeAFournir model) {
+	public PieceJustificative(Dossier dossier,PieceJustificativeAFournir model) {
 		super();
+		this.dossier =dossier;
 		this.model = model;
 	}
 

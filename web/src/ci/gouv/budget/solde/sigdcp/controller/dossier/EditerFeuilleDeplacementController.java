@@ -18,7 +18,7 @@ public class EditerFeuilleDeplacementController implements Serializable {
 	private DossierDDService dossierDDService;
 	
 	//@Inject @Getter
-	private EnregistrerDemandeDDController enregistrerDemandeDDController;
+	private FaireDemandeDDController enregistrerDemandeDDController;
 	
 	
 	public String editer(){

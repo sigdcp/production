@@ -9,9 +9,6 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
-import org.apache.commons.lang3.StringUtils;
-
 import ci.gouv.budget.solde.sigdcp.model.AbstractModel;
 
 @Getter @Setter @EqualsAndHashCode(of="dossier",callSuper=false)
@@ -39,22 +36,33 @@ public class DossierDto extends AbstractModel<Long> implements Serializable {
 	 */
 	private BulletinLiquidation bulletinLiquidationSaisie;
 	private Boolean transmettreBeneficiaire=false,annuler=false;
-	private Collection<PieceJustificative> pieceJustificatives=new ArrayList<>();
-	private Boolean marie;
-	private Integer nombreEnfant;
+	private Collection<PieceJustificative> pieceJustificatives;
+	private Boolean marie=false;
+	private Integer nombreEnfant=0;
+	private TypeDepense typeDepense;
 	
 	public DossierDto(Dossier dossier) {
 		super();
 		this.dossier = dossier;
+		if(dossier!=null && dossier.getDeplacement()!=null)
+			typeDepense = dossier.getDeplacement().getTypeDepense();
 	}
 	
 	public String getNumero(){
 		return dossier.getNumero();
 	}
-	
+	/*
 	@Deprecated
 	public Boolean isNouveau(){
 		return StringUtils.isEmpty(dossier.getNumero());
+	}*/
+	
+	public DossierDD getAsDossierDD(){
+		return (DossierDD) dossier;
+	}
+	
+	public DossierMission getAsDossierMission(){
+		return (DossierMission) dossier;
 	}
 	
 	

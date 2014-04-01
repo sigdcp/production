@@ -32,18 +32,6 @@
 		</ui:include>
 		
 		<p:fieldset legend="Agent" >			
-			<p:panelGrid columns="#{editable?6:4}" styleClass="panelGridNoBorder" columnClasses="c1" rendered="false">	
-				<p:outputLabel for="profession" value="Vous êtes un " rendered="#{editable}"/>			
-				<p:selectOneRadio id="profession" required="#{required}" requiredMessage="#{valueRequiredMessage}" value="#{enregistrerDemandeTRFormController.mae}" rendered="#{editable}">
-					<f:selectItem itemLabel="Fonctionnaire Stagiaire" itemValue="false" />
-					<f:selectItem itemLabel="Agent du Ministère des Affaires Etrangères" itemValue="true" />
-					<p:ajax event="click" update="@form" listener="#{enregistrerDemandeTRFormController.typeAgentListener}" process="@form"/>
-				</p:selectOneRadio>
-				<p:message for="profession" rendered="#{editable}"/>
-				
-				<h:outputText value="" rendered="#{editable}"/><h:outputText value="" rendered="#{editable}"/><h:outputText value="" rendered="#{editable}"/>
-			</p:panelGrid>
-			
 			<ui:include src="/identification/include/outputAgentEtat.xhtml" >
 				<ui:param name="agentEtat" value="#{enregistrerDemandeTRFormController.entity.beneficiaire}" />
 				<ui:param name="columnCount" value="6" />
@@ -86,11 +74,11 @@
 			
 			<h:panelGrid id="typeDepPg" columns="#{editable?6:4}" columnClasses="c11" rendered="#{enregistrerDemandeTRFormController.editable}">				
 				<p:outputLabel for="typeDepense" value="Est ce une prise en charge ou un remboursement ?" />
-				<p:selectOneRadio id="typeDepense" value="#{enregistrerDemandeTRFormController.entity.deplacement.typeDepense}"  required="#{required}" requiredMessage="#{valueRequiredMessage}" converter="#{objectConverter}">
+				<p:selectOneRadio id="typeDepense" value="#{enregistrerDemandeTRFormController.dossierDto.typeDepense}"  required="#{required}" requiredMessage="#{valueRequiredMessage}" converter="#{objectConverter}">
 					<f:selectItems value="#{typeDepenes}"/>
 					<p:ajax event="click" update="op" listener="#{enregistrerDemandeTRFormController.typeDepenseListener}" process="@this"/>
-				</p:selectOneRadio>
-				<h:outputText value="" rendered="#{not editable}"/>
+				</p:selectOneRadio> 
+				<h:outputText value="#{enregistrerDemandeTRFormController.entity.deplacement.typeDepense}" rendered="#{not editable}"/>
 				<p:message for="typeDepense" /> 
 				
 				<h:outputText value="" /><h:outputText value="" /><h:outputText value="" />

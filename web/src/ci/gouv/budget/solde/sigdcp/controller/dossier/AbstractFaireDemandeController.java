@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 
+import javax.faces.event.ValueChangeEvent;
 import javax.inject.Inject;
 
 import lombok.Getter;
@@ -17,7 +17,6 @@ import org.omnifaces.util.Faces;
 import ci.gouv.budget.solde.sigdcp.controller.NavigationManager;
 import ci.gouv.budget.solde.sigdcp.controller.application.AbstractDemandeController;
 import ci.gouv.budget.solde.sigdcp.model.Code;
-import ci.gouv.budget.solde.sigdcp.model.dossier.Deplacement;
 import ci.gouv.budget.solde.sigdcp.model.dossier.Dossier;
 import ci.gouv.budget.solde.sigdcp.model.dossier.DossierDto;
 import ci.gouv.budget.solde.sigdcp.model.dossier.DossierMission;
@@ -33,7 +32,7 @@ import ci.gouv.budget.solde.sigdcp.service.resources.CRUDType;
 import ci.gouv.budget.solde.sigdcp.service.utils.ServiceUtils;
 
 @Getter @Setter
-public abstract class AbstractDossierUIController<DOSSIER extends Dossier,DOSSIER_SERVICE extends AbstractDossierService<DOSSIER>> extends AbstractDemandeController<DOSSIER> implements Serializable {
+public abstract class AbstractFaireDemandeController<DOSSIER extends Dossier,DOSSIER_SERVICE extends AbstractDossierService<DOSSIER>> extends AbstractDemandeController<DOSSIER> implements Serializable {
 	
 	private static final long serialVersionUID = 6615049982603373278L;
 	
@@ -69,12 +68,12 @@ public abstract class AbstractDossierUIController<DOSSIER extends Dossier,DOSSIE
 		
 		//boolean ced = TypeSaisie.COURRIER.equals(dossierDto.getTypeSaisie());
 		courrierDto = new CourrierDto(entity.getCourrier()/*, ced || dossierDto.getDossier().getCourrier()!=null && StringUtils.isNotEmpty(dossierDto.getDossier().getCourrier().getNumero()),ced*/);
-		
+		/*
 		if(entity.getDeplacement().getTypeDepense()==null)
 			parametres = new HashMap<String, Object>();
 		else
 			parametres = pieceJustificativeService.findParametresByDossier(entity, pieceJustificativeUploader.getPieceJustificatives());
-		
+		*/
 		title = entity.getDeplacement().getNature().getLibelle();
 		//instructions = getDossierService().findInstructions(entity);
 		
@@ -109,13 +108,13 @@ public abstract class AbstractDossierUIController<DOSSIER extends Dossier,DOSSIE
 			courrierDto.setCourrierEditable(false);
 		}
 		
-		updatePieceJustificatives(true);
+		updatePieceJustificatives();
 		warnOnClosing(!CRUDType.READ.equals(crudType) && !CRUDType.DELETE.equals(crudType) || courrierDto.getCourrierEditable());
 		defaultSubmitCommand.setValue(text("bouton.soumettre"));
 	}
 	
 	protected NatureDeplacement dtoNatureDeplacement(DOSSIER dossier){
-		return dossier.getDeplacement().getNature();
+		return natureDaplacement;// dossier.getDeplacement().getNature();
 	}
 	
 	protected CRUDType operationSaisie(){
@@ -173,39 +172,16 @@ public abstract class AbstractDossierUIController<DOSSIER extends Dossier,DOSSIE
 		return (AgentEtat) userSessionManager.getUser();
 	}
 	
-	protected void updatePieceJustificatives(boolean first){
-		if(entity.getDeplacement().getTypeDepense()==null)
-			return;
-		Collection<PieceJustificative> pieceJustificatives;
-		if(first)
-			pieceJustificatives = pieceJustificativeService.findByDossier(entity, null, parametres);
-		else
-			pieceJustificatives = pieceJustificativeService.findByDossier(entity,pieceJustificativeUploader.getPieceJustificatives(), parametres);
-		
-		pieceJustificativeUploader.clear();
-		
-		for(PieceJustificative pieceJustificative : pieceJustificatives){
-			
-			pieceJustificativeUploader.addPieceJustificative(pieceJustificative,!dossierDto.getPieceJustificativesNonEditable().contains(pieceJustificative) && isEditable());
-		}
-		pieceJustificativeUploader.update();
-		
-	}
-	
 	protected void updatePieceJustificatives(){
-		updatePieceJustificatives(false);
+		getDossierService().mettreAJourPiecesJustificatives(dossierDto);
+		pieceJustificativeUploader.clear();
+		for(PieceJustificative pieceJustificative : dossierDto.getPieceJustificatives())
+			pieceJustificativeUploader.addPieceJustificative(pieceJustificative,!dossierDto.getPieceJustificativesNonEditable().contains(pieceJustificative) && isEditable());
+		pieceJustificativeUploader.update();
 	}
 	
 	protected abstract DOSSIER_SERVICE getDossierService();
-	
-	@Override
-	protected void initCreateOperation() {
-		super.initCreateOperation();
-		entity.setDeplacement(createDeplacement());
-		entity.getDeplacement().setNature(natureDaplacement);
-		entity.getDeplacement().setTypeDepense(genericService.findByClass(TypeDepense.class, String.class, Code.TYPE_DEPENSE_PRISE_EN_CHARGE));
-	}
-	
+		
 	@Override
 	protected void onDefaultSubmitAction() throws Exception {
 		switch(dossierDto.getNatureOperationCode()){
@@ -228,8 +204,10 @@ public abstract class AbstractDossierUIController<DOSSIER extends Dossier,DOSSIE
 				webConstantResources.getRequestParamUrl(),navigationManager.url("demandeliste",null,false,false)},true);
 	}
 	
-	protected Deplacement createDeplacement(){
-		return new Deplacement();
+	@Override
+	public void typeDepenseListener(ValueChangeEvent valueChangeEvent) {
+		dossierDto.setTypeDepense((TypeDepense) valueChangeEvent.getNewValue());
+		updatePieceJustificatives();
 	}
 	
 }

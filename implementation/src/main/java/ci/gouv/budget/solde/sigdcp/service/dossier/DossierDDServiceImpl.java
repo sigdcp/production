@@ -2,9 +2,11 @@ package ci.gouv.budget.solde.sigdcp.service.dossier;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Collection;
+import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
 import ci.gouv.budget.solde.sigdcp.dao.dossier.DossierDDDao;
@@ -15,8 +17,11 @@ import ci.gouv.budget.solde.sigdcp.dao.indemnite.IndemniteTrancheDao;
 import ci.gouv.budget.solde.sigdcp.model.Code;
 import ci.gouv.budget.solde.sigdcp.model.dossier.CategorieDeplacement;
 import ci.gouv.budget.solde.sigdcp.model.dossier.Deplacement;
+import ci.gouv.budget.solde.sigdcp.model.dossier.Dossier;
 import ci.gouv.budget.solde.sigdcp.model.dossier.DossierDD;
+import ci.gouv.budget.solde.sigdcp.model.dossier.DossierDto;
 import ci.gouv.budget.solde.sigdcp.model.dossier.PieceJustificative;
+import ci.gouv.budget.solde.sigdcp.model.dossier.PieceJustificativeAFournir;
 import ci.gouv.budget.solde.sigdcp.model.dossier.TypeDepense;
 import ci.gouv.budget.solde.sigdcp.model.geographie.DistanceEntreLocalite;
 import ci.gouv.budget.solde.sigdcp.model.identification.Sexe;
@@ -25,7 +30,6 @@ import ci.gouv.budget.solde.sigdcp.model.indemnite.IndemniteDetailsDD;
 import ci.gouv.budget.solde.sigdcp.model.indemnite.IndemniteDetailsPersonneDD;
 import ci.gouv.budget.solde.sigdcp.model.indemnite.IndemniteTranche;
 import ci.gouv.budget.solde.sigdcp.model.indemnite.TypeIndemniteTranche;
-import ci.gouv.budget.solde.sigdcp.service.ServiceException;
 import ci.gouv.budget.solde.sigdcp.service.utils.validaton.DossierDDValidator;
 
 @Stateless
@@ -56,7 +60,63 @@ public class DossierDDServiceImpl extends AbstractDossierServiceImpl<DossierDD> 
 			throw new ServiceException(dossierDDValidator.getMessagesAsString());
 	}*/
 	
-	@Override 
+	@Override
+	protected void chargerPiecesJustificatives(DossierDto dto) {
+		super.chargerPiecesJustificatives(dto);
+		Dossier dossier = dto.getDossier();
+		PieceJustificativeAFournir modelPiece = pieceJustificativeAFournirDao.readByNatureDeplacementIdByTypePieceIdByTypeDepenseId(dossier.getDeplacement().getNature().getCode(), Code.TYPE_PIECE_EXTRAIT_MARIAGE,
+				dossier.getDeplacement().getTypeDepense().getCode());
+		if(modelPiece!=null)
+			dto.setMarie(pieceJustificativeDao.countByDossierByTypePieceJustificativeId(dossier, Code.TYPE_PIECE_EXTRAIT_MARIAGE)>0);
+		modelPiece = pieceJustificativeAFournirDao.readByNatureDeplacementIdByTypePieceIdByTypeDepenseId(dossier.getDeplacement().getNature().getCode(), Code.TYPE_PIECE_EXTRAIT_NAISSANCE,
+				dossier.getDeplacement().getTypeDepense().getCode());
+		if(modelPiece!=null)
+			dto.setNombreEnfant(pieceJustificativeDao.countByDossierByTypePieceJustificativeId(dossier, Code.TYPE_PIECE_EXTRAIT_NAISSANCE).intValue());
+	}
+	
+	@Override @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public void mettreAJourPiecesJustificatives(DossierDto...dtos) {
+		super.mettreAJourPiecesJustificatives(dtos);
+		DossierDto dto = dtos[0];
+		PieceJustificativeAFournir modelPiece = null;
+		int pieceJustificativeExistanteIndex;
+		Dossier dossier = dto.getDossier();
+		//Extrait de mariage
+		modelPiece = pieceJustificativeAFournirDao.readByNatureDeplacementIdByTypePieceIdByTypeDepenseId(dossier.getDeplacement().getNature().getCode(), Code.TYPE_PIECE_EXTRAIT_MARIAGE,
+				dossier.getDeplacement().getTypeDepense().getCode());
+		if(modelPiece!=null){
+			pieceJustificativeExistanteIndex = index(dto, modelPiece);
+			if(Boolean.TRUE.equals(dto.getMarie())){//ajouter un extrait de mariage si il n'en existe pas
+				if(pieceJustificativeExistanteIndex==-1)
+					dto.getPieceJustificatives().add(new PieceJustificative(dossier, modelPiece));
+			}else{//supprimer l'extrait de mariage si il en existe
+				if(pieceJustificativeExistanteIndex!=-1)
+					((List<PieceJustificative>)dto.getPieceJustificatives()).remove(pieceJustificativeExistanteIndex);
+			}
+		}
+		
+		//Extrait de naissances des enfants
+		modelPiece = pieceJustificativeAFournirDao.readByNatureDeplacementIdByTypePieceIdByTypeDepenseId(dossier.getDeplacement().getNature().getCode(), Code.TYPE_PIECE_EXTRAIT_NAISSANCE,
+				dossier.getDeplacement().getTypeDepense().getCode());
+		if(modelPiece!=null){
+			int n = dto.getNombreEnfant() - count(dto, modelPiece);
+			if(n>0){// ajouter 
+				for(int i=0;i<n;i++)
+					dto.getPieceJustificatives().add(new PieceJustificative(dossier, modelPiece));
+			}else{//supprimer
+				List<PieceJustificative> list = (List<PieceJustificative>) dto.getPieceJustificatives();
+				for(int j=0;n<0 && j<list.size();){
+					if(list.get(j).getModel().equals(modelPiece)){
+						((List<PieceJustificative>)dto.getPieceJustificatives()).remove(j);
+						n++;
+					}else
+						j++;
+				}
+			}
+		}
+	}
+	
+	@Override @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public BigDecimal calculerMontantIndemnisation(DossierDD dossier) {
 		GroupeDD groupe = groupeDao.readByGrade(dossier.getGrade());
 		CategorieDeplacement categorieDeplacement = dossier.getDeplacement().getNature().getCategorie();
@@ -117,4 +177,12 @@ public class DossierDDServiceImpl extends AbstractDossierServiceImpl<DossierDD> 
 		return new DossierDD(new Deplacement(genericDao.readByClass(TypeDepense.class, String.class, Code.TYPE_DEPENSE_REMBOURSEMENT)));
 	}
 
+	@Override
+	protected void initSaisie(Dossier source, DossierDD destination) {
+		super.initSaisie(source, destination);
+		if(Code.NATURE_DEPLACEMENT_MUTATION.equals(destination.getDeplacement().getNature().getCode()))
+			((DossierDD)destination).setServiceOrigine(source.getService());
+		else
+			destination.setService(null);
+	}
 }

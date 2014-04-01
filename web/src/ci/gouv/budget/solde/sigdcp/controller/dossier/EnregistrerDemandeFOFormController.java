@@ -17,7 +17,7 @@ import ci.gouv.budget.solde.sigdcp.service.dossier.DossierObsequesService;
 
 @Named @ViewScoped
 @Getter @Setter
-public class EnregistrerDemandeFOFormController extends AbstractDossierUIController<DossierObseques,DossierObsequesService> implements Serializable {
+public class EnregistrerDemandeFOFormController extends AbstractFaireDemandeController<DossierObseques,DossierObsequesService> implements Serializable {
 	
 	private static final long serialVersionUID = 6615049982603373278L;
 	

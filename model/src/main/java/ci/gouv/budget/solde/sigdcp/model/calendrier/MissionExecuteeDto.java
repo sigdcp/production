@@ -9,6 +9,7 @@ import lombok.Setter;
 import ci.gouv.budget.solde.sigdcp.model.AbstractModel;
 import ci.gouv.budget.solde.sigdcp.model.dossier.DossierDto;
 import ci.gouv.budget.solde.sigdcp.model.dossier.PieceJustificative;
+import ci.gouv.budget.solde.sigdcp.model.dossier.TypeDepense;
 
 @Getter @Setter
 public class MissionExecuteeDto extends AbstractModel<Long> implements Serializable {
@@ -20,6 +21,7 @@ public class MissionExecuteeDto extends AbstractModel<Long> implements Serializa
 	private PieceJustificative communication;
 	private String natureOperationCode;
 	private Boolean tousPresent=true;
+	private TypeDepense typeDepense;
 	
 	public MissionExecuteeDto(MissionExecutee missionExecutee) {
 		super();

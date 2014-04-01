@@ -9,16 +9,14 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import lombok.Getter;
-import lombok.Setter;
 import ci.gouv.budget.solde.sigdcp.model.Code;
 import ci.gouv.budget.solde.sigdcp.model.dossier.DossierDD;
-import ci.gouv.budget.solde.sigdcp.model.dossier.TypeDepense;
 import ci.gouv.budget.solde.sigdcp.service.dossier.DossierDDService;
 import ci.gouv.budget.solde.sigdcp.service.utils.validaton.AbstractDossierValidator;
 import ci.gouv.budget.solde.sigdcp.service.utils.validaton.DossierDDValidator;
  
 @Named @ViewScoped
-public class EnregistrerDemandeDDController extends AbstractDossierUIController<DossierDD,DossierDDService> implements Serializable {
+public class FaireDemandeDDController extends AbstractFaireDemandeController<DossierDD,DossierDDService> implements Serializable {
 	
 	private static final long serialVersionUID = -611561465509440427L;
 	
@@ -26,10 +24,7 @@ public class EnregistrerDemandeDDController extends AbstractDossierUIController<
 	 * Services
 	 */  
 	@Inject private DossierDDService dossierDDService;
-	
-	@Getter @Setter private Boolean marie;
-	@Getter @Setter private Integer nombreEnfant=0;
-	
+
 	@Inject private DossierDDValidator validator;
 	
 	/*
@@ -54,10 +49,6 @@ public class EnregistrerDemandeDDController extends AbstractDossierUIController<
 	@Override
 	protected void initialisation() {
 		super.initialisation();
-		
-		marie = (Boolean) parametres.get(constantResources.getFormParamMarie());
-		nombreEnfant = (Integer) parametres.get(constantResources.getFormParamNombreEnfant());
-		
 		if(Code.NATURE_DEPLACEMENT_AFFECTATION.equals(entity.getDeplacement().getNature().getCode())){
 			showDatePriseService = Boolean.TRUE;
 			showServiceAcceuil = Boolean.TRUE;
@@ -68,35 +59,18 @@ public class EnregistrerDemandeDDController extends AbstractDossierUIController<
 			showServiceAcceuil = Boolean.TRUE;
 		}else if(Code.NATURE_DEPLACEMENT_RETRAITE.equals(entity.getDeplacement().getNature().getCode())){
 			showDateMiseRetraite = Boolean.TRUE;
-			showServiceOrigine = Boolean.TRUE;
-			
-			
+			showServiceOrigine = Boolean.TRUE;	
 		}
-		/*
-		entity.setGrade(genericService.findByClass(Grade.class, "A1"));
-		entity.setDatePriseService(new Date());
-		marie=false;
-		entity.getDeplacement().setDateDepart(new Date());
-		entity.getDeplacement().setDateArrivee(new Date());
-		entity.getDeplacement().setLocaliteDepart(genericService.findByClass(Localite.class, "ABJ"));
-		entity.getDeplacement().setLocaliteArrivee(genericService.findByClass(Localite.class, "BK"));
-		entity.setService(genericService.findByClass(Section.class, Code.SECTION_SERV_EXP));*/
 	}
 	
 	public void marieListener(ValueChangeEvent valueChangeEvent){
-		parametres.put(constantResources.getFormParamMarie(), valueChangeEvent.getNewValue());
+		dossierDto.setMarie((Boolean) valueChangeEvent.getNewValue());
 		updatePieceJustificatives();
 	}
 	
 	public void nombreEnfantListener(ValueChangeEvent valueChangeEvent){
-		parametres.put(constantResources.getFormParamNombreEnfant(), valueChangeEvent.getNewValue());
+		dossierDto.setNombreEnfant((Integer) valueChangeEvent.getNewValue());
 		updatePieceJustificatives();
-	}
-	
-	@Override
-	protected void initCreateOperation() {
-		super.initCreateOperation();
-		entity.getDeplacement().setTypeDepense(genericService.findByClass(TypeDepense.class, String.class, Code.TYPE_DEPENSE_REMBOURSEMENT));
 	}
 		
 }

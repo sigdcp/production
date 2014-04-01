@@ -6,13 +6,13 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import ci.gouv.budget.solde.sigdcp.controller.dossier.AbstractDossierUIController;
+import ci.gouv.budget.solde.sigdcp.controller.dossier.AbstractFaireDemandeController;
 import ci.gouv.budget.solde.sigdcp.model.dossier.Dossier;
 import ci.gouv.budget.solde.sigdcp.service.dossier.DossierService;
 import ci.gouv.budget.solde.sigdcp.service.resources.CRUDType;
 
 @Named @ViewScoped
-public class EnregistrerDecisionRemboursementController extends AbstractDossierUIController<Dossier,DossierService>  implements Serializable {
+public class EnregistrerDecisionRemboursementController extends AbstractFaireDemandeController<Dossier,DossierService>  implements Serializable {
 
 	private static final long serialVersionUID = -2412073347414420827L;
 

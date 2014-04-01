@@ -1,11 +1,12 @@
 package ci.gouv.budget.solde.sigdcp.controller.application;
 
 import java.util.Collection;
-import java.util.Map;
 
+import javax.faces.event.ValueChangeEvent;
 import javax.inject.Inject;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,6 +17,7 @@ import ci.gouv.budget.solde.sigdcp.controller.ui.form.command.Action;
 import ci.gouv.budget.solde.sigdcp.controller.ui.form.command.FormCommand;
 import ci.gouv.budget.solde.sigdcp.model.AbstractModel;
 import ci.gouv.budget.solde.sigdcp.model.dossier.PieceJustificativeAFournir;
+import ci.gouv.budget.solde.sigdcp.model.dossier.TypeDepense;
 import ci.gouv.budget.solde.sigdcp.service.dossier.PieceJustificativeAFournirService;
 import ci.gouv.budget.solde.sigdcp.service.dossier.PieceJustificativeService;
 import ci.gouv.budget.solde.sigdcp.service.dossier.StatutService;
@@ -40,14 +42,12 @@ public abstract class AbstractDemandeController<ENTITY extends AbstractModel<?>>
 	@Inject @Getter protected PieceJustificativeUploader pieceJustificativeUploader;
 	protected FormCommand<ENTITY> enregistrerCommand;
 	protected Boolean enSaisie = Boolean.FALSE;
-	protected Map<String, Object> parametres; 
-	
-	//a remplacer par le CourrienrDto TODO
-	//protected Boolean showCourrier=Boolean.FALSE,courrierEditable=Boolean.FALSE;
+	//protected Map<String, Object> parametres; 
+	@Setter protected TypeDepense typeDepense;
 	
 	@Override
 	protected void initialisation() {
-		pieceJustificativeUploader.setEditable(isEditable());
+		//pieceJustificativeUploader.setEditable(isEditable());
 		super.initialisation();
 	}
 	
@@ -110,4 +110,7 @@ public abstract class AbstractDemandeController<ENTITY extends AbstractModel<?>>
 	
 	protected abstract String onSoumettreSuccessOutcome();
 	
+	public void typeDepenseListener(ValueChangeEvent valueChangeEvent){
+		
+	}
 }

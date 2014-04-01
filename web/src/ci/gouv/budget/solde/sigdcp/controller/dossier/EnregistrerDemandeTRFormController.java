@@ -16,7 +16,7 @@ import ci.gouv.budget.solde.sigdcp.service.utils.validaton.DossierTransitValidat
 
 
 @Named @ViewScoped
-public class EnregistrerDemandeTRFormController extends AbstractDossierUIController<DossierTransit,DossierTransitService> implements Serializable{
+public class EnregistrerDemandeTRFormController extends AbstractFaireDemandeController<DossierTransit,DossierTransitService> implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
@@ -38,11 +38,6 @@ public class EnregistrerDemandeTRFormController extends AbstractDossierUIControl
 	@Override
 	protected DossierTransitService getDossierService() {
 		return dossierTransitService;
-	}
-	
-	public void typeAgentListener(){
-		parametres.put(constantResources.getFormParamMae(), mae);
-		updatePieceJustificatives();
 	}
 	
 	public void typeDepenseListener(){

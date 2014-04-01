@@ -30,6 +30,8 @@ public interface AbstractDossierService<DOSSIER extends Dossier> extends Abstrac
 	
 	public DossierDto buildDto(DOSSIER dossier,String natureOperationCode);
 	
+	void mettreAJourPiecesJustificatives(DossierDto...dossierDtos);
+	
 	/**
 	 * Lectures
 	 */

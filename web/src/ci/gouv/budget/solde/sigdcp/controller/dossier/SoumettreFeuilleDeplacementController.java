@@ -24,7 +24,7 @@ public class SoumettreFeuilleDeplacementController implements Serializable {
 	//@EJB private DossierDDService dossierDDService;
 	
 	//@Inject @Getter
-	private EnregistrerDemandeDDController enregistrerDemandeDDController;
+	private FaireDemandeDDController enregistrerDemandeDDController;
 	
 	@Getter
 	private PieceJustificative feuilleDeplacement;

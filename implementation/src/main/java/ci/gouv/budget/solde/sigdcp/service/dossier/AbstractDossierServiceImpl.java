@@ -32,7 +32,6 @@ import ci.gouv.budget.solde.sigdcp.model.dossier.BulletinLiquidation.AspectLiqui
 import ci.gouv.budget.solde.sigdcp.model.dossier.Courrier;
 import ci.gouv.budget.solde.sigdcp.model.dossier.Deplacement;
 import ci.gouv.budget.solde.sigdcp.model.dossier.Dossier;
-import ci.gouv.budget.solde.sigdcp.model.dossier.DossierDD;
 import ci.gouv.budget.solde.sigdcp.model.dossier.DossierDto;
 import ci.gouv.budget.solde.sigdcp.model.dossier.DossierMission;
 import ci.gouv.budget.solde.sigdcp.model.dossier.NatureDeplacement;
@@ -43,6 +42,7 @@ import ci.gouv.budget.solde.sigdcp.model.dossier.PieceJustificative;
 import ci.gouv.budget.solde.sigdcp.model.dossier.PieceJustificativeAFournir;
 import ci.gouv.budget.solde.sigdcp.model.dossier.Statut;
 import ci.gouv.budget.solde.sigdcp.model.dossier.TraitementDossier;
+import ci.gouv.budget.solde.sigdcp.model.dossier.TypeDepense;
 import ci.gouv.budget.solde.sigdcp.model.dossier.TypePieceProduite;
 import ci.gouv.budget.solde.sigdcp.model.dossier.ValidationType;
 import ci.gouv.budget.solde.sigdcp.model.identification.AgentEtat;
@@ -123,8 +123,6 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 		return System.currentTimeMillis()+"";
 	}
 	
-	
-	@Transactional(value=TxType.REQUIRED)
 	@Override
 	public void enregistrer(ActionType actionType,DossierDto dossierDto) throws ServiceException {
 		switch(actionType){
@@ -257,40 +255,77 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 			dto = buildDto(dossier, codeNatureOperation);
 		}else{
 			dossier = ((AbstractDossierDao<DOSSIER>)dao).readSaisieByPersonneByNatureDeplacement(utilisateur(), natureDeplacement);
+			
 			if(dossier==null){// Nouveau dossier
 				dossier = createDossier();
-				dto = new DossierDto(dossier);
 				if(dossier!=null){
-					dto.setNatureOperationCode(Code.NATURE_OPERATION_SAISIE);
-					dossier.setBeneficiaire((AgentEtat) utilisateur());
 					dossier.getDeplacement().setNature(natureDeplacement);
-					DOSSIER dernierCree = ((AbstractDossierDao<DOSSIER>)dao).readDernierCreeByAgentEtat((AgentEtat) utilisateur());
-					if(dernierCree!=null)
-						initSaisie(dernierCree, dossier);
-				}
-			}else{
-				// Dossier en cours de saisie n'ayant jamais été soumis
+					dto = buildDto(dossier, dossier.getDernierTraitement()==null?Code.NATURE_OPERATION_SAISIE:dossier.getDernierTraitement().getOperation().getNature().getSuivant().getCode());
+				}else
+					dto = new DossierDto(dossier);
+			}else
 				dto = buildDto(dossier, codeNatureOperation);
-			}
 		}
 		
 		return dto;
 	}
+	
+	protected void chargerPiecesJustificatives(DossierDto dto){
+		if(dto==null || dto.getDossier()==null || dto.getDossier().getDeplacement()==null || dto.getDossier().getDeplacement().getTypeDepense()==null)
+			return;
+		dto.setPieceJustificatives(new ArrayList<PieceJustificative>());
+		Dossier dossier = dto.getDossier();
+		
+		/*---------- Chargement des pieces de base et ...*/
+		//quelles sont les pieces a fournir
+		Collection<PieceJustificativeAFournir> pieceJustificativeAFournirs = pieceJustificativeAFournirDao.readBaseByNatureDeplacementIdByTypeDepenseId(dossier.getDeplacement().getNature().getCode(),
+				dossier.getDeplacement().getTypeDepense().getCode());
+		
+		//quelles sont les pieces déja fournis
+		if(dao.exist(dto.getDossier().getNumero()))
+			dto.getPieceJustificatives().addAll(pieceJustificativeDao.readByDossier(dossier));
+		
+		//croisement
+		for(PieceJustificativeAFournir pieceJustificativeAFournir : pieceJustificativeAFournirs){
+			boolean trouve = false;
+			for(PieceJustificative pieceJustificative : dto.getPieceJustificatives())
+				if(pieceJustificative.getModel().equals(pieceJustificativeAFournir)){
+					trouve = true;
+					break;
+				}
+			if(!trouve)
+				dto.getPieceJustificatives().add(new PieceJustificative(dossier,pieceJustificativeAFournir));
+		}
+		
+	}
+	
+	@Override
+	public void mettreAJourPiecesJustificatives(DossierDto...dossierDtos) {
+		TypeDepense temp;
+		for(DossierDto dossierDto : dossierDtos)
+			if(!dossierDto.getDossier().getDeplacement().getTypeDepense().equals(dossierDto.getTypeDepense())){
+				temp = dossierDto.getDossier().getDeplacement().getTypeDepense();
+				dossierDto.getDossier().getDeplacement().setTypeDepense(dossierDto.getTypeDepense());
+				chargerPiecesJustificatives(dossierDto);
+				dossierDto.getDossier().getDeplacement().setTypeDepense(temp);
+			}
+		for(DossierDto dossierDto : dossierDtos)
+			if(!dossierDto.getDossier().getDeplacement().getTypeDepense().equals(dossierDto.getTypeDepense()))
+				dossierDto.getDossier().getDeplacement().setTypeDepense(dossierDto.getTypeDepense());
+			
+	}
 		
 	protected abstract DOSSIER createDossier();
 	
-	//TODO a creuser
+	
 	protected void initSaisie(Dossier source,DOSSIER destination){
 		destination.setGrade(source.getGrade());
 		destination.setDatePriseService(source.getDatePriseService());
-		if(Code.NATURE_DEPLACEMENT_MUTATION.equals(destination.getDeplacement().getNature().getCode()))
-			((DossierDD)destination).setServiceOrigine(source.getService());
-		else
-			destination.setService(source.getService());
+		destination.setService(source.getService());
 	}
+	
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	@Override
-	
 	public Collection<DOSSIER> findByNatureDeplacementAndStatut(NatureDeplacement natureDeplacement, Statut statut) {
 		return ((AbstractDossierDao<DOSSIER>)dao).readByNatureDeplacementAndStatut(natureDeplacement, statut);
 	}
@@ -433,7 +468,7 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 	public DossierDto buildDto(DOSSIER dossier,String natureOperationCode){
 		DossierDto dto = new DossierDto(dossier);
 		TraitementDossier td = dossier.getDernierTraitement();
-		
+		Boolean dossierExiste = dao.exist(dto.getDossier().getNumero());
 		if(StringUtils.isNotEmpty(natureOperationCode)){
 			//NatureOperation natureOperation = genericDao.readByClass(NatureOperation.class, natureOperationCode);
 			dto.setNatureOperationCode(natureOperationCode);
@@ -475,7 +510,15 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 			dto.getBulletinLiquidations().add((BulletinLiquidation) creationBlTraitement.getPieceProduite());
 		}
 		
+		chargerPiecesJustificatives(dto);
+		
 		if(Code.NATURE_OPERATION_SAISIE.equals(dto.getNatureOperationCode())){
+			chargerPiecesJustificatives(dto);
+			//dto.setNatureOperationCode(Code.NATURE_OPERATION_SAISIE);
+			dossier.setBeneficiaire((AgentEtat) utilisateur());
+			DOSSIER dernierCree = ((AbstractDossierDao<DOSSIER>)dao).readDernierCreeByAgentEtat((AgentEtat) utilisateur());
+			if(dernierCree!=null)
+				initSaisie(dernierCree, dossier);
 			dto.setPieceAdministrative(new PieceJustificative(dossier, null, 
 					pieceJustificativeAFournirDao.readAdministrativeByNatureDeplacementIdByTypeDepenseId(dossier.getDeplacement().getNature().getCode(), dossier.getDeplacement().getTypeDepense().getCode())
 					, null));	
@@ -484,10 +527,13 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 			for(TraitementDossier traitementDossier : dto.getHistoriqueTraitements())
 				traitementDossier.setStatutMessage(statutMessage(traitementDossier));
 			dto.setPieceAdministrative(pieceJustificativeDao.readAdministrativeByDossier(dossier));	
-			if(Code.NATURE_OPERATION_DEPOT.equals(dto.getNatureOperationCode()))
+			if(Code.NATURE_OPERATION_SOUMISSION.equals(dto.getNatureOperationCode())){
+				
+			}else if(Code.NATURE_OPERATION_DEPOT.equals(dto.getNatureOperationCode()))
 				dossier.setCourrier(new Courrier());
 			else if(Code.NATURE_OPERATION_TRANSMISSION_SAISIE_A_ORGANISATEUR.equals(dto.getNatureOperationCode())){
 				Collection<PieceJustificative> ccms = pieceJustificativeDao.readByDossierByTypeId(dossier, Code.TYPE_PIECE_COMMUNICATION);
+				System.out.println(ccms);
 				if(!ccms.isEmpty())
 					dto.getPieceJustificativesNonEditable().add(ccms.iterator().next());
 			}else if(Code.NATURE_OPERATION_ETABLISSEMENT_BL.equals(dto.getNatureOperationCode())){
@@ -511,23 +557,23 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 		}
 		
 		//dto.setBulletinLiquidation(bulletinLiquidationDao.readByDossier(dossier));
-		
-		OperationValidationConfig creerDossierOpConfig = operationValidationConfigDao.readByNatureOperationIdByValidationType(Code.NATURE_OPERATION_SAISIE, ValidationType.ACCEPTER);
-		dto.setDateCreation(traitementDossierDao.readByDossierByNatureOperationIdByStatutId(dossier, Code.NATURE_OPERATION_SAISIE, 
-				creerDossierOpConfig.getStatutResultat().getCode()).iterator().next().getOperation().getDate());
-		
-		OperationValidationConfig visaOpConfig = operationValidationConfigDao.readByNatureOperationIdByValidationType(Code.NATURE_OPERATION_VISA_BL, ValidationType.ACCEPTER);
-		
-		
-		Boolean blVise = !traitementDossierDao.readByDossierByNatureOperationIdByStatutId(dossier, Code.NATURE_OPERATION_VISA_BL, visaOpConfig.getStatutResultat().getCode()).isEmpty();
-		if(blVise || StringUtils.isNotEmpty(natureOperationCode) && (Code.NATURE_OPERATION_VALIDATION_BL.equals(natureOperationCode) || 
-				Code.NATURE_OPERATION_TRANSMISSION_BL_VISA.equals(natureOperationCode) ||
-				Code.NATURE_OPERATION_VISA_BL.equals(natureOperationCode))) {
-			//dto.setBulletinLiquidation((BulletinLiquidation) creationBlTraitement.getPieceProduite());
+		if(dossierExiste){
+			OperationValidationConfig creerDossierOpConfig = operationValidationConfigDao.readByNatureOperationIdByValidationType(Code.NATURE_OPERATION_SAISIE, ValidationType.ACCEPTER);
+			dto.setDateCreation(traitementDossierDao.readByDossierByNatureOperationIdByStatutId(dossier, Code.NATURE_OPERATION_SAISIE, 
+					creerDossierOpConfig.getStatutResultat().getCode()).iterator().next().getOperation().getDate());
+			
+			OperationValidationConfig visaOpConfig = operationValidationConfigDao.readByNatureOperationIdByValidationType(Code.NATURE_OPERATION_VISA_BL, ValidationType.ACCEPTER);
+			
+			
+			Boolean blVise = !traitementDossierDao.readByDossierByNatureOperationIdByStatutId(dossier, Code.NATURE_OPERATION_VISA_BL, visaOpConfig.getStatutResultat().getCode()).isEmpty();
+			if(blVise || StringUtils.isNotEmpty(natureOperationCode) && (Code.NATURE_OPERATION_VALIDATION_BL.equals(natureOperationCode) || 
+					Code.NATURE_OPERATION_TRANSMISSION_BL_VISA.equals(natureOperationCode) ||
+					Code.NATURE_OPERATION_VISA_BL.equals(natureOperationCode))) {
+				//dto.setBulletinLiquidation((BulletinLiquidation) creationBlTraitement.getPieceProduite());
+			}
+			
+			dto.getDossier().getDernierTraitement().setStatutMessage(statutMessage(dto.getDossier().getDernierTraitement()));
 		}
-		
-		dto.getDossier().getDernierTraitement().setStatutMessage(statutMessage(dto.getDossier().getDernierTraitement()));
-		
 		return dto;
 	}
 		
@@ -617,5 +663,28 @@ public abstract class AbstractDossierServiceImpl<DOSSIER extends Dossier> extend
 			}*/
 		return null;
 	}
+	
+
+	/**/
+	
+	protected Integer index(DossierDto dto,PieceJustificativeAFournir model){
+		int index = -1;
+		for(PieceJustificative pieceJustificative : dto.getPieceJustificatives()){
+			index++;
+			if(pieceJustificative.getModel().equals(model))
+				return index;
+		}
+		return -1;
+	}
+	
+	protected Integer count(DossierDto dto,PieceJustificativeAFournir model){
+		int n = 0;
+		for(PieceJustificative pieceJustificative : dto.getPieceJustificatives()){
+			if(pieceJustificative.getModel().equals(model))
+				n++;
+		}
+		return n;
+	}
+	
 	
 }

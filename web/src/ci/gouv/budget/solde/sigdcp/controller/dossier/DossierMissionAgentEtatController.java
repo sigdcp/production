@@ -17,7 +17,7 @@ import ci.gouv.budget.solde.sigdcp.service.dossier.DossierMissionService;
 import ci.gouv.budget.solde.sigdcp.service.resources.CRUDType;
 
 @Getter @Setter @Named @ViewScoped
-public class DossierMissionAgentEtatController extends AbstractDossierUIController<DossierMission, DossierMissionService> implements Serializable {
+public class DossierMissionAgentEtatController extends AbstractFaireDemandeController<DossierMission, DossierMissionService> implements Serializable {
 
 	private static final long serialVersionUID = -8840662624432472475L;
 

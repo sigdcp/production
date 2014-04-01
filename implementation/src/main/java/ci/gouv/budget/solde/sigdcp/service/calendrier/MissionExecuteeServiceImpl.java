@@ -165,7 +165,7 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 			missionExecutee = ((MissionExecuteeDao)dao).read(id);
 			if(missionExecutee==null)
 				serviceException(ServiceExceptionType.RESOURCE_NOT_FOUND);
-			dto = buildDto(missionExecutee);
+			dto = buildDto(missionExecutee,null);
 			/*for(Dossier dossier : dossierService.findByDeplacement(missionExecutee.getDeplacement())){
 				DossierDto dossierDto = new 
 				dto.getDossierDtos().add(DossierServiceImpl.dto(dossier, personne));
@@ -180,13 +180,14 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 				missionExecutee = new MissionExecutee();
 				missionExecutee.setOrganisateur((AgentEtat) utilisateur());
 				missionExecutee.setDeplacement(new Deplacement());
+				dto =buildDto(missionExecutee,Code.NATURE_OPERATION_ORGANISATION_DEPLACEMENT);
 				missionExecutee.getDeplacement().setNature(genericDao.readByClass(NatureDeplacement.class, Code.NATURE_DEPLACEMENT_MISSION_HCI));
 				missionExecutee.getDeplacement().setTypeDepense(genericDao.readByClass(TypeDepense.class, Code.TYPE_DEPENSE_PRISE_EN_CHARGE));
 				missionExecutee.getDeplacement().setLocaliteDepart(genericDao.readByClass(Localite.class, Code.LOCALITE_ABIDJAN));
 			}else{//mission en cours de saisie
 				
 			}
-			dto =buildDto(missionExecutee);
+			dto =buildDto(missionExecutee,null);
 		}
 		
 		
@@ -204,13 +205,16 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 	public Collection<MissionExecuteeDto> findMissionOrganisees() {
 		Collection<MissionExecuteeDto> dtos = new LinkedList<>();
 		for(MissionExecutee me : ((MissionExecuteeDao)dao).readByPersonne(utilisateur()))
-			dtos.add(buildDto(me));
+			dtos.add(buildDto(me,null));
 
 		return dtos;
 	}
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public MissionExecuteeDto buildDto(MissionExecutee missionExecutee){
+	public MissionExecuteeDto buildDto(MissionExecutee missionExecutee,String natureOperation){
 		MissionExecuteeDto dto = new MissionExecuteeDto(missionExecutee);
+		if(Code.NATURE_OPERATION_ORGANISATION_DEPLACEMENT.equals(natureOperation)){
+			
+		}
 		for(Dossier dossier : dossierService.findByDeplacement(missionExecutee.getDeplacement())){
 			dto.getDossierDtos().add(dossierService.buildDto((DossierMission) dossier, null));
 			if(Code.NATURE_OPERATION_TRANSMISSION_SAISIE_A_BENEFICIAIRE.equals(dossier.getDernierTraitement().getOperation().getNature().getCode()))
@@ -219,8 +223,8 @@ public class MissionExecuteeServiceImpl extends DefaultServiceImpl<MissionExecut
 		dto.setNatureOperationCode(dto.getDossierDtos().isEmpty() || !dto.getTousPresent()?Code.NATURE_OPERATION_SAISIE:dto.getDossierDtos().iterator().next().getNatureOperationCode());
 		Collection<PieceJustificative> communications = pieceJustificativeDao.readByDeplacementByTypeId(missionExecutee.getDeplacement(), Code.TYPE_PIECE_COMMUNICATION);
 		
-		dto.setCommunication(communications.isEmpty()?new PieceJustificative(pieceJustificativeAFournirDao.readAdministrativeByNatureDeplacementIdByTypeDepenseId(Code.NATURE_DEPLACEMENT_MISSION_HCI, Code.TYPE_DEPENSE_PRISE_EN_CHARGE) ):communications.iterator().next());
-		
+		dto.setCommunication(communications.isEmpty()?new PieceJustificative(null,pieceJustificativeAFournirDao.readAdministrativeByNatureDeplacementIdByTypeDepenseId(Code.NATURE_DEPLACEMENT_MISSION_HCI, Code.TYPE_DEPENSE_PRISE_EN_CHARGE) ):communications.iterator().next());
+		dto.setTypeDepense(dto.getDossierDtos().isEmpty()?genericDao.readByClass(TypeDepense.class, Code.TYPE_DEPENSE_PRISE_EN_CHARGE):dto.getDossierDtos().iterator().next().getDossier().getDeplacement().getTypeDepense());
 		return dto;
 	}
 }

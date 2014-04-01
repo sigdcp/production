@@ -2,11 +2,11 @@ package ci.gouv.budget.solde.sigdcp.service.dossier;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.resource.spi.IllegalStateException;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -58,8 +58,9 @@ public class DossierMissionServiceImpl extends AbstractDossierServiceImpl<Dossie
 	
 	@Override
 	protected DossierMission createDossier() {
-		return null;
-		//throw new RuntimeException(new IllegalStateException());
+		Collection<DossierMission> dossierMissions = ((DossierMissionDao)dao).readByNatureDeplacementsByNatureOperationIdByStatutId(Arrays.asList(genericDao.readByClass(NatureDeplacement.class, Code.NATURE_DEPLACEMENT_MISSION_HCI)), 
+				Code.NATURE_OPERATION_TRANSMISSION_SAISIE_A_BENEFICIAIRE, Code.STATUT_ACCEPTE);
+		return dossierMissions.isEmpty()?null:dossierMissions.iterator().next();
 	}
 		
 	@Override
@@ -97,6 +98,8 @@ public class DossierMissionServiceImpl extends AbstractDossierServiceImpl<Dossie
 		}
 		return dtos;
 	}
+
+	
 	 
 }
  

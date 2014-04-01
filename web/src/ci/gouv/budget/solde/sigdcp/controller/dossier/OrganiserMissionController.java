@@ -24,6 +24,7 @@ import ci.gouv.budget.solde.sigdcp.model.calendrier.MissionExecutee;
 import ci.gouv.budget.solde.sigdcp.model.calendrier.MissionExecuteeDto;
 import ci.gouv.budget.solde.sigdcp.model.dossier.DossierDto;
 import ci.gouv.budget.solde.sigdcp.model.dossier.DossierMission;
+import ci.gouv.budget.solde.sigdcp.model.dossier.TypeDepense;
 import ci.gouv.budget.solde.sigdcp.service.ActionType;
 import ci.gouv.budget.solde.sigdcp.service.calendrier.MissionExecuteeService;
 import ci.gouv.budget.solde.sigdcp.service.dossier.DossierMissionService;
@@ -91,9 +92,8 @@ public class OrganiserMissionController extends AbstractDemandeController<Missio
 		}
 		
 		for(DossierDto dossierDto : missionExecuteeDto.getDossierDtos()){
-			Participant participant = new Participant(entity,dossierDto,
-					pieceJustificativeService.findByDossier(dossierDto.getDossier(), null, null), pieceJustificativeService, fichierService,isEditable() &&
-					!Code.NATURE_OPERATION_TRANSMISSION_SAISIE_A_BENEFICIAIRE.equals(dossierDto.getDossier().getDernierTraitement().getOperation().getNature().getCode()));
+			Participant participant = new Participant(dossierMissionService,entity,dossierDto.getDossier().getBeneficiaire().getMatricule(),dossierDto.getDossier().getBeneficiaire(),dossierDto,
+					pieceJustificativeService, fichierService,isEditable() && !Code.NATURE_OPERATION_TRANSMISSION_SAISIE_A_BENEFICIAIRE.equals(dossierDto.getDossier().getDernierTraitement().getOperation().getNature().getCode()));
 			participant.setCourrierDto(new CourrierDto(dossierDto.getDossier().getCourrier()));
 			if(courrierEditable){
 				participant.getCourrierDto().setCourrierEditable(true); 
@@ -110,6 +110,7 @@ public class OrganiserMissionController extends AbstractDemandeController<Missio
 		warnOnClosing(!CRUDType.READ.equals(crudType) && !CRUDType.DELETE.equals(crudType) || courrierEditable);
 		defaultSubmitCommand.setValue(text("bouton.soumettre"));
 		pieceJustificativeUploader.setTitle("Actes administratifs");
+		
 		pieceJustificativeUploader.addPieceJustificative(missionExecuteeDto.getCommunication(), isEditable());
 		pieceJustificativeUploader.update();
 		requiredEnabled=true;
@@ -189,16 +190,14 @@ public class OrganiserMissionController extends AbstractDemandeController<Missio
 				exist=true;
 				break;
 			}
-		Participant participant = new Participant(entity,matricule,agentEtatService.findByMatricule(matricule),pieceJustificativeService,fichierService,isEditable());
+		DossierDto dto = dossierMissionService.buildDto(new DossierMission(entity.getDeplacement()), Code.NATURE_OPERATION_SAISIE);
+		Participant participant = new Participant(dossierMissionService,entity,matricule,agentEtatService.findByMatricule(matricule),dto,pieceJustificativeService,fichierService,isEditable());
 		if(!exist && participants.add(participant)){
 			matricule = null;
-			//participant.getDossierMission().setIndemnite(new MontantIndemniteMission());
 		}
 	}
 	
 	public void supprimerParticipant(Participant participant){
-		//System.out.println(dossierMissionDtos.size());
-		//((List)dossierMissionDtos).remove(0);
 		participants.remove(participant);
 	}
 	
@@ -216,6 +215,25 @@ public class OrganiserMissionController extends AbstractDemandeController<Missio
 	@Override
 	protected AbstractValidator<MissionExecutee> validator() {
 		return missionExecuteeValidator;
+	}
+	
+	@Override
+	public void typeDepenseListener(ValueChangeEvent valueChangeEvent) {
+		super.typeDepenseListener(valueChangeEvent);
+		if(participants.isEmpty()){
+			entity.getDeplacement().setTypeDepense((TypeDepense) valueChangeEvent.getNewValue());
+			return;
+		}
+		DossierDto[] dtos = new DossierDto[participants.size()];
+		int i= 0;
+		for(Participant participant : participants){
+			participant.getDossierDto().setTypeDepense((TypeDepense) valueChangeEvent.getNewValue());
+			dtos[i++] = participant.getDossierDto();
+		}
+		dossierMissionService.mettreAJourPiecesJustificatives(dtos);
+		for(Participant participant : participants)
+			participant.updatePieceJustificatives();
+		
 	}
 	
 	public void destinationValueChange(ValueChangeEvent valueChangeEvent){

@@ -42,7 +42,7 @@
 					<h:outputText value="#{record.communication.numero}" />
 				</p:column>
 				
-				<p:column headerText="#{constantResources.text('designation')}" sortBy="#{record.missionExecutee.designation}" filterBy="#{record.missionExecutee.designation}">
+				<p:column headerText="#{constantResources.text('designation')}" >
 					<h:outputText value="#{record.missionExecutee.designation}" />
 				</p:column>
 				
@@ -50,9 +50,7 @@
 					<h:outputText value="#{record.missionExecutee.deplacement.localiteArrivee}" />
 				</p:column>
 							
-				<p:column headerText="#{constantResources.text('indemnite')}" sortBy="#{record.missionExecutee.indemnite.total}" filterBy="#{record.missionExecutee.indemnite.total}">
-					<h:outputText value="#{record.missionExecutee.indemnite.total}" />
-				</p:column>	
+				
 					
 			</ui:define>
 		</ui:decorate>			
